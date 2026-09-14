@@ -366,6 +366,36 @@ async function validateClaimBeforeSend(guard: ClaimGuard, ctx: LogFields): Promi
   }
 }
 
+/** Baixa a imagem do produto e devolve base64 + mimetype (ou null se falhar). */
+async function downloadImageAsBase64(
+  url: string,
+): Promise<{ base64: string; mimetype: string } | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15_000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Mobile Safari/537.36",
+        accept: "image/*,*/*;q=0.8",
+      },
+    }).finally(() => clearTimeout(timer));
+    if (!res.ok) return null;
+    const ct = (res.headers.get("content-type") ?? "image/jpeg").split(";")[0]!.trim();
+    if (!ct.startsWith("image/")) return null;
+    const buf = new Uint8Array(await res.arrayBuffer());
+    if (buf.byteLength === 0 || buf.byteLength > 8 * 1024 * 1024) return null;
+    let bin = "";
+    for (let i = 0; i < buf.length; i += 0x8000) {
+      bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+    }
+    return { base64: btoa(bin), mimetype: ct };
+  } catch {
+    return null;
+  }
+}
+
 async function sendMediaOnce(
   guard: ClaimGuard,
   instance: string,
@@ -377,18 +407,50 @@ async function sendMediaOnce(
   const started = Date.now();
   try {
     await validateClaimBeforeSend(guard, ctx);
+
+    const downloaded = await downloadImageAsBase64(mediaUrl);
+    const mimetype = downloaded?.mimetype ?? "image/jpeg";
+    const ext = mimetype.includes("png") ? "png" : mimetype.includes("webp") ? "webp" : "jpg";
+    log("MEDIA_SOURCE", {
+      ...ctx,
+      mode: downloaded ? "base64" : "url",
+      mimetype,
+      bytes: downloaded ? downloaded.base64.length : null,
+    });
+
     const res = await evolutionFetch(`/message/sendMedia/${encodeURIComponent(instance)}`, {
       method: "POST",
       retries: 0,
       body: JSON.stringify({
         number: jid,
         mediatype: "image",
-        media: mediaUrl,
+        mimetype,
+        fileName: `produto.${ext}`,
+        media: downloaded ? downloaded.base64 : mediaUrl,
         caption,
       }),
     });
-    const id = res?.key?.id ?? res?.messageId ?? res?.id ?? null;
-    return { attempts: 1, durationMs: Date.now() - started, messageId: typeof id === "string" ? id : null };
+
+    const raw = await res.text();
+    let parsed: unknown = null;
+    try {
+      parsed = raw ? JSON.parse(raw) : null;
+    } catch {
+      parsed = null;
+    }
+    if (!res.ok) {
+      log("SEND_HTTP_ERROR", { ...ctx, status: res.status, body: raw.slice(0, 500) });
+      throw new Error(`EVOLUTION_HTTP_${res.status}: ${raw.slice(0, 200)}`);
+    }
+    const p = parsed as
+      | { key?: { id?: string }; messageId?: string; id?: string; status?: string }
+      | null;
+    const id = p?.key?.id ?? p?.messageId ?? p?.id ?? null;
+    if (!id) {
+      log("SEND_NO_MESSAGE_ID", { ...ctx, body: raw.slice(0, 500) });
+      throw new Error(`EVOLUTION_NO_MESSAGE_ID: ${raw.slice(0, 200)}`);
+    }
+    return { attempts: 1, durationMs: Date.now() - started, messageId: id };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     log("SEND_NO_RETRY", { ...ctx, reason: "idempotency_guard", error: msg });
