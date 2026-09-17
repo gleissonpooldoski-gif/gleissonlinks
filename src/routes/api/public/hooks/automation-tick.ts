@@ -418,7 +418,9 @@ async function sendMediaOnce(
       bytes: downloaded ? downloaded.base64.length : null,
     });
 
-    const res = await evolutionFetch(`/message/sendMedia/${encodeURIComponent(instance)}`, {
+    // evolutionFetch aqui delega para evolutionJson: o retorno JÁ é o corpo JSON
+    // parseado (erros HTTP viram exceção "Evolution API <status> em ...").
+    const parsed = (await evolutionFetch(`/message/sendMedia/${encodeURIComponent(instance)}`, {
       method: "POST",
       retries: 0,
       body: JSON.stringify({
@@ -429,26 +431,12 @@ async function sendMediaOnce(
         media: downloaded ? downloaded.base64 : mediaUrl,
         caption,
       }),
-    });
+    })) as { key?: { id?: string }; messageId?: string; id?: string } | null;
 
-    const raw = await res.text();
-    let parsed: unknown = null;
-    try {
-      parsed = raw ? JSON.parse(raw) : null;
-    } catch {
-      parsed = null;
-    }
-    if (!res.ok) {
-      log("SEND_HTTP_ERROR", { ...ctx, status: res.status, body: raw.slice(0, 500) });
-      throw new Error(`EVOLUTION_HTTP_${res.status}: ${raw.slice(0, 200)}`);
-    }
-    const p = parsed as
-      | { key?: { id?: string }; messageId?: string; id?: string; status?: string }
-      | null;
-    const id = p?.key?.id ?? p?.messageId ?? p?.id ?? null;
+    const id = parsed?.key?.id ?? parsed?.messageId ?? parsed?.id ?? null;
     if (!id) {
-      log("SEND_NO_MESSAGE_ID", { ...ctx, body: raw.slice(0, 500) });
-      throw new Error(`EVOLUTION_NO_MESSAGE_ID: ${raw.slice(0, 200)}`);
+      log("SEND_NO_MESSAGE_ID", { ...ctx, body: JSON.stringify(parsed ?? null).slice(0, 500) });
+      throw new Error(`EVOLUTION_NO_MESSAGE_ID: ${JSON.stringify(parsed ?? null).slice(0, 200)}`);
     }
     return { attempts: 1, durationMs: Date.now() - started, messageId: id };
   } catch (e) {
