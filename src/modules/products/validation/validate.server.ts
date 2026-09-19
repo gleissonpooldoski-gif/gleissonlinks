@@ -219,7 +219,7 @@ export async function persistValidation(
 
   // Falha. Decide se degrada agora ou apenas contabiliza.
   const nextCount = prevCount + 1;
-  const shouldDegrade = nextCount >= DEGRADATION_FAILURE_THRESHOLD;
+  const shouldDegrade = forceDegrade || nextCount >= DEGRADATION_FAILURE_THRESHOLD;
   const nextAvailability: ProductAvailability = shouldDegrade
     ? result.availability
     : (previous as ProductAvailability | null) ?? "active";
