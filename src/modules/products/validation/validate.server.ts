@@ -176,6 +176,7 @@ export async function persistValidation(
   channelId: string,
   result: ValidationResult,
   origin: ValidationOrigin = "cron",
+  forceDegrade = false,
 ): Promise<void> {
   // Snapshot atual para decidir se degrada e para logar transição.
   const { data: current } = await admin
