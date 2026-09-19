@@ -65,6 +65,44 @@ async function validateImage(url: string | null | undefined): Promise<boolean> {
   }
 }
 
+/** A URL final é a home da loja (sem caminho de produto)? */
+function isStoreHome(finalUrl: string): boolean {
+  try {
+    const u = new URL(finalUrl);
+    const path = u.pathname.replace(/\/+$/, "");
+    return path === "" || path === "/";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Sinais de página "produto não existe mais". Exigimos texto visível de erro,
+ * nunca palavras soltas que aparecem dentro de scripts/JSON do site.
+ */
+const NOT_FOUND_MARKERS = [
+  "página não encontrada",
+  "pagina nao encontrada",
+  "page not found",
+  "oops! página não encontrada",
+  "este link não está mais disponível",
+  "produto não encontrado",
+  "produto nao encontrado",
+  "this product is no longer available",
+  "esse produto não existe",
+];
+
+/** Bloqueio anti-robô — NÃO significa produto inexistente. */
+function looksBlocked(status: number, body: string): boolean {
+  if (status === 403 || status === 429 || status === 401 || status >= 500) return true;
+  return (
+    body.includes("captcha") ||
+    body.includes("verifique que você é humano") ||
+    body.includes("access denied") ||
+    body.includes("unusual traffic")
+  );
+}
+
 async function validateShopeeLink(link: string): Promise<{ status: ProductAvailability; reason?: string }> {
   try {
     const r = await fetchWithTimeout(link, { method: "GET" }, 9000);
@@ -72,23 +110,27 @@ async function validateShopeeLink(link: string): Promise<{ status: ProductAvaila
     if (r.status === 404 || r.status === 410) {
       return { status: "inactive", reason: `http ${r.status}` };
     }
-    if (/shopee\.com\.br\/?($|\?)/i.test(finalUrl) || /not[-_]?found|error/i.test(finalUrl)) {
-      return { status: "inactive", reason: "redirecionou p/ home/erro" };
+
+    const body = (await r.text()).slice(0, 200_000).toLowerCase();
+
+    if (looksBlocked(r.status, body)) {
+      return { status: "error", reason: `bloqueio/instabilidade (http ${r.status})` };
     }
     if (!r.ok) {
       return { status: "error", reason: `http ${r.status}` };
     }
-    const body = (await r.text()).slice(0, 200_000).toLowerCase();
-    if (
-      body.includes('"stock":0') ||
-      body.includes("sold_out") ||
-      body.includes("produto indisponível") ||
-      body.includes("out of stock")
-    ) {
-      return { status: "out_of_stock", reason: "estoque zerado" };
+    // Só considera fora do ar quando a página redirecionou para a home
+    // E o conteúdo não tem nenhum indício de produto.
+    if (isStoreHome(finalUrl) && !body.includes("add to cart") && !body.includes("comprar agora")) {
+      return { status: "inactive", reason: "link redirecionou para a home da loja" };
     }
-    if (body.includes("página não encontrada") || body.includes("page not found")) {
-      return { status: "inactive", reason: "página não encontrada" };
+    if (NOT_FOUND_MARKERS.some((m) => body.includes(m))) {
+      return { status: "inactive", reason: "página informa que o produto não existe" };
+    }
+    // "sold_out"/stock aparecem em JSON de variações válidas → não usamos mais
+    // como prova isolada. Exigimos aviso visível de indisponibilidade.
+    if (body.includes("produto esgotado") || body.includes("sold out</")) {
+      return { status: "out_of_stock", reason: "produto esgotado" };
     }
     return { status: "active" };
   } catch (e) {
@@ -101,9 +143,16 @@ async function validateGenericLink(link: string): Promise<{ status: ProductAvail
     const r = await fetchWithTimeout(link, { method: "HEAD" }, 8000);
     if (r.status === 404 || r.status === 410) return { status: "inactive", reason: `http ${r.status}` };
     if (r.ok) return { status: "active" };
-    const r2 = await fetchWithTimeout(link, { method: "GET" }, 8000);
+
+    const r2 = await fetchWithTimeout(link, { method: "GET" }, 9000);
     if (r2.status === 404 || r2.status === 410) return { status: "inactive", reason: `http ${r2.status}` };
-    if (r2.ok) return { status: "active" };
+    const body2 = r2.ok ? (await r2.text()).slice(0, 200_000).toLowerCase() : "";
+    if (r2.ok) {
+      if (NOT_FOUND_MARKERS.some((m) => body2.includes(m))) {
+        return { status: "inactive", reason: "página informa que o produto não existe" };
+      }
+      return { status: "active" };
+    }
     return { status: "error", reason: `http ${r2.status}` };
   } catch (e) {
     return { status: "error", reason: e instanceof Error ? e.message : String(e) };
