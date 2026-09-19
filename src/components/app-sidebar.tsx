@@ -12,6 +12,7 @@ import {
   Radio,
   Send,
   Settings,
+  Sparkles,
   X,
   Zap,
 } from "lucide-react";
