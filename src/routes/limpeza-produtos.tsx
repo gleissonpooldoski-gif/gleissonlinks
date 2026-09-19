@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Broom, Loader2, RefreshCw, Trash2, SearchCheck, StopCircle } from "lucide-react";
+import { Loader2, RefreshCw, Sparkles, Trash2, SearchCheck, StopCircle } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   getCleanupSummary,
@@ -105,7 +105,7 @@ function CleanupPage() {
         <div className="mx-auto max-w-5xl px-5 py-8 lg:px-10">
           <header className="mb-6 flex items-start gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-              <Broom className="h-5 w-5" />
+              <Sparkles className="h-5 w-5" />
             </div>
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight">Limpeza de Produtos</h1>
