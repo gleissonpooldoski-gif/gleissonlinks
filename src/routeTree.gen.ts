@@ -13,6 +13,7 @@ import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as SaudeRouteImport } from './routes/saude'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as LimpezaProdutosRouteImport } from './routes/limpeza-produtos'
 import { Route as InstagramRouteImport } from './routes/instagram'
 import { Route as FalhasRouteImport } from './routes/falhas'
 import { Route as ConfigAfiliadosRouteImport } from './routes/config-afiliados'
@@ -76,6 +77,11 @@ const SaudeRoute = SaudeRouteImport.update({
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LimpezaProdutosRoute = LimpezaProdutosRouteImport.update({
+  id: '/limpeza-produtos',
+  path: '/limpeza-produtos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InstagramRoute = InstagramRouteImport.update({
@@ -327,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/config-afiliados': typeof ConfigAfiliadosRoute
   '/falhas': typeof FalhasRoute
   '/instagram': typeof InstagramRouteWithChildren
+  '/limpeza-produtos': typeof LimpezaProdutosRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude': typeof SaudeRoute
   '/templates': typeof TemplatesRouteWithChildren
@@ -377,6 +384,7 @@ export interface FileRoutesByTo {
   '/config-afiliados': typeof ConfigAfiliadosRoute
   '/falhas': typeof FalhasRoute
   '/instagram': typeof InstagramRouteWithChildren
+  '/limpeza-produtos': typeof LimpezaProdutosRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude': typeof SaudeRoute
   '/templates': typeof TemplatesRouteWithChildren
@@ -428,6 +436,7 @@ export interface FileRoutesById {
   '/config-afiliados': typeof ConfigAfiliadosRoute
   '/falhas': typeof FalhasRoute
   '/instagram': typeof InstagramRouteWithChildren
+  '/limpeza-produtos': typeof LimpezaProdutosRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude': typeof SaudeRoute
   '/templates': typeof TemplatesRouteWithChildren
@@ -480,6 +489,7 @@ export interface FileRouteTypes {
     | '/config-afiliados'
     | '/falhas'
     | '/instagram'
+    | '/limpeza-produtos'
     | '/relatorios'
     | '/saude'
     | '/templates'
@@ -530,6 +540,7 @@ export interface FileRouteTypes {
     | '/config-afiliados'
     | '/falhas'
     | '/instagram'
+    | '/limpeza-produtos'
     | '/relatorios'
     | '/saude'
     | '/templates'
@@ -580,6 +591,7 @@ export interface FileRouteTypes {
     | '/config-afiliados'
     | '/falhas'
     | '/instagram'
+    | '/limpeza-produtos'
     | '/relatorios'
     | '/saude'
     | '/templates'
@@ -631,6 +643,7 @@ export interface RootRouteChildren {
   ConfigAfiliadosRoute: typeof ConfigAfiliadosRoute
   FalhasRoute: typeof FalhasRoute
   InstagramRoute: typeof InstagramRouteWithChildren
+  LimpezaProdutosRoute: typeof LimpezaProdutosRoute
   RelatoriosRoute: typeof RelatoriosRoute
   SaudeRoute: typeof SaudeRoute
   TemplatesRoute: typeof TemplatesRouteWithChildren
@@ -694,6 +707,13 @@ declare module '@tanstack/react-router' {
       path: '/relatorios'
       fullPath: '/relatorios'
       preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/limpeza-produtos': {
+      id: '/limpeza-produtos'
+      path: '/limpeza-produtos'
+      fullPath: '/limpeza-produtos'
+      preLoaderRoute: typeof LimpezaProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/instagram': {
@@ -1053,6 +1073,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfigAfiliadosRoute: ConfigAfiliadosRoute,
   FalhasRoute: FalhasRoute,
   InstagramRoute: InstagramRouteWithChildren,
+  LimpezaProdutosRoute: LimpezaProdutosRoute,
   RelatoriosRoute: RelatoriosRoute,
   SaudeRoute: SaudeRoute,
   TemplatesRoute: TemplatesRouteWithChildren,

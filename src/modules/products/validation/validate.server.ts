@@ -176,6 +176,7 @@ export async function persistValidation(
   channelId: string,
   result: ValidationResult,
   origin: ValidationOrigin = "cron",
+  forceDegrade = false,
 ): Promise<void> {
   // Snapshot atual para decidir se degrada e para logar transição.
   const { data: current } = await admin
@@ -218,7 +219,7 @@ export async function persistValidation(
 
   // Falha. Decide se degrada agora ou apenas contabiliza.
   const nextCount = prevCount + 1;
-  const shouldDegrade = nextCount >= DEGRADATION_FAILURE_THRESHOLD;
+  const shouldDegrade = forceDegrade || nextCount >= DEGRADATION_FAILURE_THRESHOLD;
   const nextAvailability: ProductAvailability = shouldDegrade
     ? result.availability
     : (previous as ProductAvailability | null) ?? "active";
