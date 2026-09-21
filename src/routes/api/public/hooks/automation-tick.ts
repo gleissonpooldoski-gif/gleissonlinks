@@ -684,34 +684,53 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
     for (const r of recentRes.data ?? []) if (r?.product_id) excluded.add(r.product_id);
 
     // Seleção enxuta (colunas usadas) ordenada pelos menos-validados.
-    let q = admin
-      .from("products")
-      .select(
-        "id, title, platform, promo_price, original_price, image_url, affiliate_link, raw_link, sales, sales_label, sales_recent, sales_historical, sales_source, price_quality, price_quality_reason, store_name, category, source_group_jid, source_group_name, availability, last_validated_at",
-      )
-      .eq("user_id", cfg.user_id)
-      .eq("channel_id", cfg.channel_id)
-      .eq("source_group_jid", cfg.group_id)
-      .in("platform", lojas)
-      .eq("availability", "active")
-      .not("affiliate_link", "is", null)
-      // Envio é sempre sendMedia: produto sem imagem falha 100% das vezes.
-      .not("image_url", "is", null)
-      .neq("image_url", "")
+    // IMPORTANTE: o filtro `not in (...)` NÃO é enviado ao banco quando a lista
+    // de excluídos é grande — centenas de UUIDs estouram o tamanho da URL do
+    // PostgREST e a resposta vira HTTP 400 "Bad Request" (grupo trava sem
+    // enviar). Nesse caso paginamos e filtramos em memória.
+    const PUSH_DOWN_LIMIT = 60;
+    const pushDown = excluded.size > 0 && excluded.size <= PUSH_DOWN_LIMIT;
+    const PAGE = 200;
+    const MAX_PAGES = 15;
 
-      .order("last_validated_at", { ascending: true, nullsFirst: true })
-      .limit(30);
+    for (let page = 0; page < MAX_PAGES; page++) {
+      let q = admin
+        .from("products")
+        .select(
+          "id, title, platform, promo_price, original_price, image_url, affiliate_link, raw_link, sales, sales_label, sales_recent, sales_historical, sales_source, price_quality, price_quality_reason, store_name, category, source_group_jid, source_group_name, availability, last_validated_at",
+        )
+        .eq("user_id", cfg.user_id)
+        .eq("channel_id", cfg.channel_id)
+        .eq("source_group_jid", cfg.group_id)
+        .in("platform", lojas)
+        .eq("availability", "active")
+        .not("affiliate_link", "is", null)
+        // Envio é sempre sendMedia: produto sem imagem falha 100% das vezes.
+        .not("image_url", "is", null)
+        .neq("image_url", "")
+        .order("last_validated_at", { ascending: true, nullsFirst: true })
+        .order("id", { ascending: true })
+        .range(page * PAGE, page * PAGE + PAGE - 1);
 
-    if (excluded.size > 0) {
-      q = q.not("id", "in", `(${Array.from(excluded).join(",")})`);
+      if (pushDown) {
+        q = q.not("id", "in", `(${Array.from(excluded).join(",")})`);
+      }
+
+      const { data, error } = await q;
+      if (error) throw new Error(error.message);
+      const rows = data ?? [];
+      const candidates = pushDown
+        ? rows
+        : rows.filter((r: { id: string }) => !excluded.has(r.id));
+      if (candidates.length > 0) {
+        const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+        // LOTE 26 — sem validação síncrona. Todos os candidatos já são 'active'
+        // (garantido pelo filtro acima).
+        return shuffled[0] ?? null;
+      }
+      if (rows.length < PAGE) break;
     }
-    const { data, error } = await q;
-    if (error) throw new Error(error.message);
-    const shuffled = [...(data ?? [])].sort(() => Math.random() - 0.5);
-    // LOTE 26 — sem validação síncrona. Todos os candidatos já são 'active'
-    // (garantido pelo filtro acima). O cron `products-validate` mantém isso
-    // atualizado. Retorna o primeiro candidato disponível.
-    return shuffled[0] ?? null;
+    return null;
   }
 
   let product = await pickNext();
