@@ -8,6 +8,7 @@ import {
   listAutomationFailures,
   resolveFailure,
   retryFailure,
+  retryAllFailures,
   type FailureRow,
 } from "@/modules/dlq/dlq.functions";
 import { useState } from "react";
@@ -52,7 +53,22 @@ function FailuresPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const retryAllFn = useServerFn(retryAllFailures);
+  const retryAllMut = useMutation({
+    mutationFn: () => retryAllFn(),
+    onSuccess: (r: { retried: number }) => {
+      toast.success(
+        r.retried > 0
+          ? `${r.retried} falha(s) reenfileiradas — o próximo ciclo vai executar`
+          : "Nenhuma falha pendente para reprocessar",
+      );
+      q.refetch();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const rows = q.data ?? [];
+  const pendingCount = rows.filter((r: FailureRow) => !r.resolved_at).length;
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground antialiased lg:flex">
