@@ -104,6 +104,41 @@ export const retryFailure = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const retryAllFailures = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ ok: true; retried: number }> => {
+    const { supabase, userId } = context;
+    const { data: rows, error } = await supabase
+      .from("automation_failures")
+      .select("id, config_id")
+      .eq("user_id", userId)
+      .is("resolved_at", null)
+      .returns<{ id: string; config_id: string | null }[]>();
+    if (error) throw new Error(error.message);
+    const list = rows ?? [];
+    if (list.length === 0) return { ok: true, retried: 0 };
+
+    const now = new Date().toISOString();
+    const configIds = [...new Set(list.map((r) => r.config_id).filter(Boolean))] as string[];
+    if (configIds.length > 0) {
+      await supabase
+        .from("automation_configs")
+        .update({ next_run_at: now, last_error: null, status: "running" })
+        .in("id", configIds)
+        .eq("user_id", userId);
+    }
+    const { error: upErr } = await supabase
+      .from("automation_failures")
+      .update({ resolved_at: now })
+      .in(
+        "id",
+        list.map((r) => r.id),
+      )
+      .eq("user_id", userId);
+    if (upErr) throw new Error(upErr.message);
+    return { ok: true, retried: list.length };
+  });
+
 export const countUnresolvedFailures = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<number> => {

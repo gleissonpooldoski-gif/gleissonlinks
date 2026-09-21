@@ -8,6 +8,7 @@ import {
   listAutomationFailures,
   resolveFailure,
   retryFailure,
+  retryAllFailures,
   type FailureRow,
 } from "@/modules/dlq/dlq.functions";
 import { useState } from "react";
