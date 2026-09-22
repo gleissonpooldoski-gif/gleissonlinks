@@ -86,15 +86,28 @@ function FailuresPage() {
                 Reprocessar para tentar novamente no próximo ciclo.
               </p>
             </div>
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
-              <input
-                type="checkbox"
-                checked={includeResolved}
-                onChange={(e) => setIncludeResolved(e.target.checked)}
-                className="h-4 w-4 rounded border-border"
-              />
-              Mostrar resolvidas
-            </label>
+            <div className="flex items-center gap-3">
+              {pendingCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => retryAllMut.mutate()}
+                  disabled={retryAllMut.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${retryAllMut.isPending ? "animate-spin" : ""}`} />
+                  {retryAllMut.isPending ? "Reprocessando…" : `Reprocessar tudo (${pendingCount})`}
+                </button>
+              )}
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={includeResolved}
+                  onChange={(e) => setIncludeResolved(e.target.checked)}
+                  className="h-4 w-4 rounded border-border"
+                />
+                Mostrar resolvidas
+              </label>
+            </div>
           </header>
 
           {q.isLoading && (
