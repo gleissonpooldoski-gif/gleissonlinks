@@ -683,13 +683,11 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
     for (const r of sentRes.data ?? []) if (r?.product_id) excluded.add(r.product_id);
     for (const r of recentRes.data ?? []) if (r?.product_id) excluded.add(r.product_id);
 
-    // Seleção enxuta (colunas usadas) ordenada pelos menos-validados.
-    // IMPORTANTE: o filtro `not in (...)` NÃO é enviado ao banco quando a lista
-    // de excluídos é grande — centenas de UUIDs estouram o tamanho da URL do
-    // PostgREST e a resposta vira HTTP 400 "Bad Request" (grupo trava sem
-    // enviar). Nesse caso paginamos e filtramos em memória.
-    const PUSH_DOWN_LIMIT = 60;
-    const pushDown = excluded.size > 0 && excluded.size <= PUSH_DOWN_LIMIT;
+    // Nunca serializar os IDs já enviados em `.not("id", "in", ...)`.
+    // Mesmo uma lista aparentemente pequena pode ultrapassar limites de URL
+    // por causa dos demais filtros e headers, fazendo apenas alguns grupos
+    // travarem com HTTP 400 "Bad Request". A exclusão é sempre feita em
+    // memória sobre páginas pequenas e de tamanho constante.
     const PAGE = 200;
     const MAX_PAGES = 15;
 
@@ -712,16 +710,12 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
         .order("id", { ascending: true })
         .range(page * PAGE, page * PAGE + PAGE - 1);
 
-      if (pushDown) {
-        q = q.not("id", "in", `(${Array.from(excluded).join(",")})`);
-      }
-
       const { data, error } = await q;
-      if (error) throw new Error(error.message);
+      if (error) {
+        throw new Error(`Falha ao selecionar produto do grupo ${cfg.group_id}: ${error.message}`);
+      }
       const rows = data ?? [];
-      const candidates = pushDown
-        ? rows
-        : rows.filter((r: { id: string }) => !excluded.has(r.id));
+      const candidates = rows.filter((r: { id: string }) => !excluded.has(r.id));
       if (candidates.length > 0) {
         const shuffled = [...candidates].sort(() => Math.random() - 0.5);
         // LOTE 26 — sem validação síncrona. Todos os candidatos já são 'active'
