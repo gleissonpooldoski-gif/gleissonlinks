@@ -408,6 +408,20 @@ async function sendMediaOnce(
   try {
     await validateClaimBeforeSend(guard, ctx);
 
+    // Guardas pré-envio: evitam HTTP 400 "Bad Request" previsíveis da Evolution.
+    if (!/^[0-9-]+@g\.us$/.test(jid)) {
+      throw new Error(`INVALID_GROUP_JID: ${jid}`);
+    }
+    if (!/^https?:\/\//i.test(mediaUrl)) {
+      throw new Error(`INVALID_MEDIA_URL: ${String(mediaUrl).slice(0, 120)}`);
+    }
+    // Legenda de mídia no WhatsApp tem limite prático de ~1024 caracteres.
+    const MAX_CAPTION = 1000;
+    if (caption.length > MAX_CAPTION) {
+      log("CAPTION_TRUNCATED", { ...ctx, original: caption.length });
+      caption = caption.slice(0, MAX_CAPTION - 1).trimEnd() + "…";
+    }
+
     const downloaded = await downloadImageAsBase64(mediaUrl);
     const mimetype = downloaded?.mimetype ?? "image/jpeg";
     const ext = mimetype.includes("png") ? "png" : mimetype.includes("webp") ? "webp" : "jpg";
