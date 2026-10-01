@@ -117,12 +117,59 @@ function isProvenNotDelivered(err: unknown): boolean {
     lower.includes("produto sem imagem") ||
     lower.includes("circuit breaker aberto") ||
     msg.startsWith("CLAIM_INVALID") ||
-    msg.startsWith("CLAIM_VALIDATION_FAILED")
+    msg.startsWith("CLAIM_VALIDATION_FAILED") ||
+    msg.startsWith("INVALID_") ||
+    // Corpo "Connection Closed" recebido da Evolution = rejeição explícita.
+    (err as { code?: string } | null)?.code === "SOCKET_CLOSED"
   ) {
     return true;
   }
   // Resposta HTTP de erro completa vinda da Evolution (rejeição explícita).
   return /^Evolution API \d{3} em /.test(msg);
+}
+
+/**
+ * Rejeição causada pelo PRÓPRIO produto (mídia+texto recusados com 4xx,
+ * dados inválidos). O produto é pulado neste ciclo (claim fica `failed`)
+ * para nunca repetir o mesmo item em loop.
+ */
+function isProductRejection(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err ?? "");
+  return (
+    /^Evolution API 4\d\d em \/message\//.test(msg) ||
+    msg.toLowerCase().includes("produto sem imagem") ||
+    msg.startsWith("INVALID_CAPTION") ||
+    msg.startsWith("INVALID_MEDIA_URL")
+  );
+}
+
+/** Remove caracteres de controle (mantém \n e \t) e normaliza quebras. */
+function sanitizeCaption(s: string): string {
+  return String(s ?? "")
+    .replace(/\r\n?/g, "\n")
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B\uFEFF]/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
+ * Mensagem de erro COMPLETA. Erros do banco (PostgREST) às vezes chegam só com
+ * "Bad Request"; anexamos código, detalhes e dica para nunca gravar texto vago.
+ */
+function describeError(err: unknown): string {
+  if (err == null) return "erro desconhecido";
+  if (typeof err === "string") return err;
+  const e = err as { message?: string; code?: string; details?: string; hint?: string; status?: number };
+  const parts = [e.message || String(err)];
+  const extra = [
+    e.status ? `status=${e.status}` : null,
+    e.code ? `code=${e.code}` : null,
+    e.details ? `details=${String(e.details).slice(0, 200)}` : null,
+    e.hint ? `hint=${String(e.hint).slice(0, 200)}` : null,
+  ].filter(Boolean);
+  if (extra.length) parts.push(`(${extra.join(", ")})`);
+  return parts.join(" ");
 }
 
 
