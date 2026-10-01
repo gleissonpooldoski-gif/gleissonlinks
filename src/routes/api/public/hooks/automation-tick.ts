@@ -117,12 +117,59 @@ function isProvenNotDelivered(err: unknown): boolean {
     lower.includes("produto sem imagem") ||
     lower.includes("circuit breaker aberto") ||
     msg.startsWith("CLAIM_INVALID") ||
-    msg.startsWith("CLAIM_VALIDATION_FAILED")
+    msg.startsWith("CLAIM_VALIDATION_FAILED") ||
+    msg.startsWith("INVALID_") ||
+    // Corpo "Connection Closed" recebido da Evolution = rejeição explícita.
+    (err as { code?: string } | null)?.code === "SOCKET_CLOSED"
   ) {
     return true;
   }
   // Resposta HTTP de erro completa vinda da Evolution (rejeição explícita).
   return /^Evolution API \d{3} em /.test(msg);
+}
+
+/**
+ * Rejeição causada pelo PRÓPRIO produto (mídia+texto recusados com 4xx,
+ * dados inválidos). O produto é pulado neste ciclo (claim fica `failed`)
+ * para nunca repetir o mesmo item em loop.
+ */
+function isProductRejection(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err ?? "");
+  return (
+    /^Evolution API 4\d\d em \/message\//.test(msg) ||
+    msg.toLowerCase().includes("produto sem imagem") ||
+    msg.startsWith("INVALID_CAPTION") ||
+    msg.startsWith("INVALID_MEDIA_URL")
+  );
+}
+
+/** Remove caracteres de controle (mantém \n e \t) e normaliza quebras. */
+function sanitizeCaption(s: string): string {
+  return String(s ?? "")
+    .replace(/\r\n?/g, "\n")
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B\uFEFF]/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
+ * Mensagem de erro COMPLETA. Erros do banco (PostgREST) às vezes chegam só com
+ * "Bad Request"; anexamos código, detalhes e dica para nunca gravar texto vago.
+ */
+function describeError(err: unknown): string {
+  if (err == null) return "erro desconhecido";
+  if (typeof err === "string") return err;
+  const e = err as { message?: string; code?: string; details?: string; hint?: string; status?: number };
+  const parts = [e.message || String(err)];
+  const extra = [
+    e.status ? `status=${e.status}` : null,
+    e.code ? `code=${e.code}` : null,
+    e.details ? `details=${String(e.details).slice(0, 200)}` : null,
+    e.hint ? `hint=${String(e.hint).slice(0, 200)}` : null,
+  ].filter(Boolean);
+  if (extra.length) parts.push(`(${extra.join(", ")})`);
+  return parts.join(" ");
 }
 
 
@@ -396,6 +443,25 @@ async function downloadImageAsBase64(
   }
 }
 
+function extractMessageId(parsed: any): string | null {
+  return parsed?.key?.id ?? parsed?.messageId ?? parsed?.id ?? null;
+}
+
+/** Envio de texto puro — usado como fallback quando a mídia é inviável/rejeitada. */
+async function sendTextOnce(instance: string, jid: string, text: string, ctx: LogFields): Promise<string> {
+  const parsed = await evolutionFetch(`/message/sendText/${encodeURIComponent(instance)}`, {
+    method: "POST",
+    retries: 0,
+    body: JSON.stringify({ number: jid, text, linkPreview: true }),
+  });
+  const id = extractMessageId(parsed);
+  if (!id) {
+    log("SEND_TEXT_NO_MESSAGE_ID", { ...ctx, body: JSON.stringify(parsed ?? null).slice(0, 500) });
+    throw new Error(`EVOLUTION_NO_MESSAGE_ID: ${JSON.stringify(parsed ?? null).slice(0, 200)}`);
+  }
+  return id;
+}
+
 async function sendMediaOnce(
   guard: ClaimGuard,
   instance: string,
@@ -412,42 +478,65 @@ async function sendMediaOnce(
     if (!/^[0-9-]+@g\.us$/.test(jid)) {
       throw new Error(`INVALID_GROUP_JID: ${jid}`);
     }
-    if (!/^https?:\/\//i.test(mediaUrl)) {
-      throw new Error(`INVALID_MEDIA_URL: ${String(mediaUrl).slice(0, 120)}`);
-    }
+    caption = sanitizeCaption(caption);
     // Legenda de mídia no WhatsApp tem limite prático de ~1024 caracteres.
     const MAX_CAPTION = 1000;
     if (caption.length > MAX_CAPTION) {
       log("CAPTION_TRUNCATED", { ...ctx, original: caption.length });
       caption = caption.slice(0, MAX_CAPTION - 1).trimEnd() + "…";
     }
+    if (!caption) throw new Error("INVALID_CAPTION: legenda vazia após sanitização");
 
-    const downloaded = await downloadImageAsBase64(mediaUrl);
-    const mimetype = downloaded?.mimetype ?? "image/jpeg";
-    const ext = mimetype.includes("png") ? "png" : mimetype.includes("webp") ? "webp" : "jpg";
+    // Imagem: só enviamos mídia quando o servidor conseguiu baixar um JPG/PNG
+    // válido. URL quebrada, HTML, 403/404, WebP/GIF → texto direto (título,
+    // preço e link), em vez de deixar a Evolution responder 400.
+    const downloaded = /^https?:\/\//i.test(mediaUrl) ? await downloadImageAsBase64(mediaUrl) : null;
+    const mediaOk = !!downloaded && /^image\/(jpe?g|png)$/i.test(downloaded.mimetype);
     log("MEDIA_SOURCE", {
       ...ctx,
-      mode: downloaded ? "base64" : "url",
-      mimetype,
+      mode: mediaOk ? "base64" : "text_fallback",
+      mimetype: downloaded?.mimetype ?? null,
       bytes: downloaded ? downloaded.base64.length : null,
     });
 
-    // evolutionFetch aqui delega para evolutionJson: o retorno JÁ é o corpo JSON
-    // parseado (erros HTTP viram exceção "Evolution API <status> em ...").
-    const parsed = (await evolutionFetch(`/message/sendMedia/${encodeURIComponent(instance)}`, {
-      method: "POST",
-      retries: 0,
-      body: JSON.stringify({
-        number: jid,
-        mediatype: "image",
-        mimetype,
-        fileName: `produto.${ext}`,
-        media: downloaded ? downloaded.base64 : mediaUrl,
-        caption,
-      }),
-    })) as { key?: { id?: string }; messageId?: string; id?: string } | null;
+    if (!mediaOk) {
+      const id = await sendTextOnce(instance, jid, caption, ctx);
+      log("SEND_TEXT_FALLBACK_OK", { ...ctx, reason: downloaded ? "unsupported_mimetype" : "image_unavailable" });
+      return { attempts: 1, durationMs: Date.now() - started, messageId: id };
+    }
 
-    const id = parsed?.key?.id ?? parsed?.messageId ?? parsed?.id ?? null;
+    const mimetype = downloaded!.mimetype.toLowerCase() === "image/jpg" ? "image/jpeg" : downloaded!.mimetype.toLowerCase();
+    const ext = mimetype.includes("png") ? "png" : "jpg";
+
+    let parsed: any;
+    try {
+      // evolutionFetch delega para evolutionJson: o retorno JÁ é o corpo JSON.
+      parsed = await evolutionFetch(`/message/sendMedia/${encodeURIComponent(instance)}`, {
+        method: "POST",
+        retries: 0,
+        body: JSON.stringify({
+          number: jid,
+          mediatype: "image",
+          mimetype,
+          fileName: `produto.${ext}`,
+          media: downloaded!.base64,
+          caption,
+        }),
+      });
+    } catch (mediaErr) {
+      // Fallback SEGURO: só quando a Evolution devolveu uma REJEIÇÃO 4xx completa
+      // (prova de que nada saiu). Timeout/rede/5xx continuam sem reenvio.
+      const m = mediaErr instanceof Error ? mediaErr.message : String(mediaErr);
+      if (/^Evolution API 4\d\d em \/message\/sendMedia/.test(m) && !isSessionDeadError(mediaErr)) {
+        log("SEND_MEDIA_REJECTED", { ...ctx, error: m.slice(0, 500), action: "fallback_send_text" });
+        const id = await sendTextOnce(instance, jid, caption, ctx);
+        log("SEND_TEXT_FALLBACK_OK", { ...ctx, reason: "media_rejected" });
+        return { attempts: 1, durationMs: Date.now() - started, messageId: id };
+      }
+      throw mediaErr;
+    }
+
+    const id = extractMessageId(parsed);
     if (!id) {
       log("SEND_NO_MESSAGE_ID", { ...ctx, body: JSON.stringify(parsed ?? null).slice(0, 500) });
       throw new Error(`EVOLUTION_NO_MESSAGE_ID: ${JSON.stringify(parsed ?? null).slice(0, 200)}`);
@@ -458,6 +547,70 @@ async function sendMediaOnce(
     log("SEND_NO_RETRY", { ...ctx, reason: "idempotency_guard", error: msg });
     throw e;
   }
+}
+
+/**
+ * Sonda de acesso ao grupo ANTES do claim (não queima produto):
+ * - socket morto (`Connection Closed`, mesmo com state=open);
+ * - instância fora do grupo;
+ * - grupo restrito a admins e instância sem admin.
+ */
+type GroupProbe =
+  | { ok: true }
+  | { ok: false; kind: "session_dead" | "not_member" | "not_admin" | "transient"; message: string };
+
+async function probeGroupAccess(instance: string, jid: string): Promise<GroupProbe> {
+  let info: any;
+  try {
+    info = await evolutionFetch(
+      `/group/findGroupInfos/${encodeURIComponent(instance)}?groupJid=${encodeURIComponent(jid)}`,
+      { method: "GET", retries: 0, timeoutMs: 20_000 } as any,
+    );
+  } catch (err) {
+    const m = err instanceof Error ? err.message : String(err);
+    if ((err as any)?.code === "SOCKET_CLOSED" || isSessionDeadError(err)) {
+      return {
+        ok: false,
+        kind: "session_dead",
+        message: `Sessão "${instance}" travada na Evolution (Connection Closed) apesar de aparecer conectada. Releia o QR Code dessa instância.`,
+      };
+    }
+    if (/^Evolution API (403|404) em /.test(m)) {
+      return {
+        ok: false,
+        kind: "not_member",
+        message: `A instância "${instance}" não participa do grupo ${jid} (Evolution: ${m.slice(0, 200)})`,
+      };
+    }
+    return { ok: false, kind: "transient", message: `Falha ao verificar o grupo: ${m.slice(0, 300)}` };
+  }
+
+  const announce = info?.announce === true;
+  const participants: any[] = Array.isArray(info?.participants) ? info.participants : [];
+  if (announce && participants.length > 0) {
+    let owner = "";
+    try {
+      const list = await evolutionFetch(
+        `/instance/fetchInstances?instanceName=${encodeURIComponent(instance)}`,
+        { method: "GET", retries: 0, timeoutMs: 10_000 } as any,
+      );
+      const arr: any[] = Array.isArray(list) ? list : [];
+      owner = String(arr[0]?.ownerJid ?? arr[0]?.owner ?? "");
+    } catch {
+      /* sem owner → não bloqueia */
+    }
+    if (owner) {
+      const me = participants.find((p) => [p?.id, p?.jid, p?.phoneNumber].includes(owner));
+      if (me && !me.admin) {
+        return {
+          ok: false,
+          kind: "not_admin",
+          message: `O grupo "${info?.subject ?? jid}" só permite mensagens de admins e a instância "${instance}" não é admin.`,
+        };
+      }
+    }
+  }
+  return { ok: true };
 }
 
 export type AutomationClaimSendResult =
