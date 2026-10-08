@@ -103,6 +103,13 @@ function createGuardAdmin() {
 describe("automation atomic claim send flow", () => {
   it("permite apenas 1 envio real em 100 fluxos concorrentes completos", async () => {
     evolutionJson.mockClear();
+    // Imagem válida (JPEG) para exercitar o caminho de mídia.
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () =>
+      new Response(new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]), {
+        status: 200,
+        headers: { "content-type": "image/jpeg" },
+      }),
+    );
     const admin = createGuardAdmin();
     const cfg = { id: "cfg-1", user_id: "user-1" };
     const product = { id: "prod-1" };
@@ -134,5 +141,6 @@ describe("automation atomic claim send flow", () => {
     expect([...admin.rows.values()][0]).toEqual(
       expect.objectContaining({ status: "sent", worker_id: "worker-0", message_id: "msg-1" }),
     );
+    fetchSpy.mockRestore();
   });
 });
