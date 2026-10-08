@@ -172,6 +172,22 @@ function describeError(err: unknown): string {
   return parts.join(" ");
 }
 
+/** Lê TODOS os product_id paginando de 1000 em 1000 (limite do banco). */
+async function fetchAllProductIds(
+  page: (from: number, to: number) => PromiseLike<{ data: any[] | null; error: any }>,
+): Promise<string[]> {
+  const SIZE = 1000;
+  const out: string[] = [];
+  for (let i = 0; i < 50; i++) {
+    const { data, error } = await page(i * SIZE, i * SIZE + SIZE - 1);
+    if (error) throw new Error(`Falha ao ler histórico de envios: ${describeError(error)}`);
+    const rows = data ?? [];
+    for (const r of rows) if (r?.product_id) out.push(String(r.product_id));
+    if (rows.length < SIZE) break;
+  }
+  return out;
+}
+
 
 
 
@@ -715,7 +731,9 @@ export async function claimAndSendMediaOnceForAutomation(input: {
     const sessionDead = isSessionDeadError(e);
     // LOTE 14 — só libera o claim quando existe PROVA de não-entrega.
     // Ambíguo (timeout/rede) continua queimando o claim (fail-safe LOTE 8/9/10).
-    const canRelease = isProvenNotDelivered(e);
+    // Produto rejeitado pela Evolution (4xx) fica `failed` → pulado no ciclo,
+    // nunca repetido em loop. Sessão/breaker liberam o produto de volta.
+    const canRelease = isProvenNotDelivered(e) && !isProductRejection(e);
     log("SEND_FAILED", {
       ...ctx,
       claim_id: claimId,
@@ -829,26 +847,43 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
   // `availability='active'` da query abaixo.
 
   const ANTI_REPEAT_HOURS = 24;
+  const excluded = new Set<string>();
+  let excludedLoaded = false;
 
   async function pickNext(): Promise<any | null> {
     // Inventário obrigatório por canal + grupo. Legados sem grupo ficam
     // pendentes e jamais são enviados automaticamente.
     if (!cfg.group_id) return null;
 
-    // Sends do ciclo + histórico anti-repetição em paralelo (1 round-trip).
-    const since = new Date(Date.now() - ANTI_REPEAT_HOURS * 3600_000).toISOString();
-    const [sentRes, recentRes] = await Promise.all([
-      admin.from("automation_group_sends").select("product_id").eq("config_id", cfg.id),
-      admin
-        .from("whatsapp_campaign_history")
-        .select("product_id")
-        .eq("config_id", cfg.id)
-        .eq("status", "sent")
-        .gte("sent_at", since),
-    ]);
-    const excluded = new Set<string>();
-    for (const r of sentRes.data ?? []) if (r?.product_id) excluded.add(r.product_id);
-    for (const r of recentRes.data ?? []) if (r?.product_id) excluded.add(r.product_id);
+    // Sends do ciclo + histórico anti-repetição. PAGINADO: o banco devolve no
+    // máximo 1000 linhas por consulta; acima disso produtos já enviados
+    // "sumiam" da exclusão, o claim dava duplicado e o grupo parava de enviar.
+    if (!excludedLoaded) {
+      const since = new Date(Date.now() - ANTI_REPEAT_HOURS * 3600_000).toISOString();
+      const [sentIds, recentIds] = await Promise.all([
+        fetchAllProductIds((from, to) =>
+          admin
+            .from("automation_group_sends")
+            .select("product_id")
+            .eq("config_id", cfg.id)
+            .order("id", { ascending: true })
+            .range(from, to),
+        ),
+        fetchAllProductIds((from, to) =>
+          admin
+            .from("whatsapp_campaign_history")
+            .select("product_id")
+            .eq("config_id", cfg.id)
+            .eq("status", "sent")
+            .gte("sent_at", since)
+            .order("id", { ascending: true })
+            .range(from, to),
+        ),
+      ]);
+      for (const id of sentIds) excluded.add(id);
+      for (const id of recentIds) excluded.add(id);
+      excludedLoaded = true;
+    }
 
     // Nunca serializar os IDs já enviados em `.not("id", "in", ...)`.
     // Mesmo uma lista aparentemente pequena pode ultrapassar limites de URL
@@ -910,6 +945,8 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
       return;
     }
     await admin.from("automation_group_sends").delete().eq("config_id", cfg.id);
+    excluded.clear();
+    excludedLoaded = false;
     product = await pickNext();
     if (!product) {
       // Estoque momentaneamente vazio: transitório — aguarda novos produtos.
@@ -1059,6 +1096,20 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
   }
 
 
+  // Sonda o grupo ANTES do claim: sessão travada, fora do grupo ou sem admin
+  // não queimam produto. Falha transitória da sonda não bloqueia o envio.
+  const probe = await probeGroupAccess(instanceName, groups[0]!.group_jid);
+  if (!probe.ok && probe.kind !== "transient") {
+    log("GROUP_PROBE_BLOCKED", { config_id: cfg.id, group_id: cfg.group_id, kind: probe.kind, error: probe.message });
+    await admin.from("automation_configs").update({
+      status: "waiting",
+      last_error: probe.message,
+      next_run_at: new Date(Date.now() + 5 * 60_000).toISOString(),
+    }).eq("id", cfg.id);
+    return;
+  }
+  if (!probe.ok) log("GROUP_PROBE_TRANSIENT", { config_id: cfg.id, error: probe.message });
+
   // Renderiza legenda
   const { loadLayoutFor, resolveHeader } = await import("@/modules/posts/layout.functions");
   const { renderPost } = await import("@/modules/posts/render");
@@ -1146,6 +1197,8 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
 
 
   let anySent = false;
+  let onlyDuplicates = false;
+  let lastSendError: string | null = null;
   const productSourceJid: string | null = (product as { source_group_jid?: string | null }).source_group_jid ?? null;
   for (const g of groups) {
     // Bloqueio de isolamento: se o produto foi capturado de outro grupo,
@@ -1195,9 +1248,15 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
       },
     });
 
-    if (claimResult.outcome === "duplicate") continue;
+    if (claimResult.outcome === "duplicate") {
+      // Produto já reservado (outro worker/tick). Não conta como envio.
+      onlyDuplicates = true;
+      excluded.add(product.id);
+      continue;
+    }
 
     if (claimResult.outcome === "failed" && !claimResult.claimId) {
+      lastSendError = claimResult.error;
       await admin.from("whatsapp_campaign_history").insert({
         user_id: cfg.user_id,
         config_id: cfg.id,
@@ -1226,6 +1285,7 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
       await new Promise((r) => setTimeout(r, 800));
       anySent = true;
     } else {
+      lastSendError = err;
       // NUNCA realimentar o breaker com o próprio erro "breaker aberto":
       // isso criava um laço em que a instância nunca voltava a fechar.
       const isBreakerOwnError = /circuit breaker aberto/i.test(err ?? "");
@@ -1292,10 +1352,25 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
     }
   }
 
-  // LOTE 8 — a reserva já foi feita ANTES de cada envio (idempotência
-  // garantida pelo banco). O upsert pós-envio que existia aqui era
-  // redundante e mascarava a real ordem dos eventos. Removido.
-  void anySent;
+  // Nada saiu de fato: NUNCA marcar como enviado nem limpar o aviso.
+  // - Só duplicado (produto já reservado): tenta outro produto no próximo minuto.
+  // - Falha real: grava o erro real e segue para o próximo produto no intervalo.
+  if (!anySent) {
+    const reason = lastSendError
+      ? lastSendError.slice(0, 500)
+      : onlyDuplicates
+        ? null
+        : "Nenhum envio realizado neste ciclo";
+    log("TICK_NOT_SENT", { config_id: cfg.id, group_id: cfg.group_id, only_duplicates: onlyDuplicates, error: reason });
+    await admin.from("automation_configs").update({
+      status: "running",
+      ...(reason ? { last_error: reason } : {}),
+      next_run_at: new Date(
+        Date.now() + (lastSendError ? cfg.intervalo_min * 60_000 : 60_000),
+      ).toISOString(),
+    }).eq("id", cfg.id);
+    return;
+  }
 
 
 
@@ -1366,7 +1441,7 @@ export const Route = createFileRoute("/api/public/hooks/automation-tick")({
             const duration = Date.now() - cfgStart;
             results.push({ id: cfg.id, ok: true, duration_ms: duration });
           } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
+            const msg = describeError(err);
             const duration = Date.now() - cfgStart;
             const cls = classifyAutomationError(err);
             log("TICK_CONFIG_ERROR", { ...ctx, error: msg, error_class: cls, duration_ms: duration });

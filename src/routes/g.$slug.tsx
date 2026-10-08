@@ -175,7 +175,7 @@ export const Route = createFileRoute("/g/$slug")({
     <div className="grid min-h-screen place-items-center bg-gray-50 text-gray-700">
       <div className="text-center">
         <h1 className="text-2xl font-bold">Erro ao carregar</h1>
-        <p className="mt-2 text-sm">{error.message}</p>
+        <p className="mt-2 text-sm">{error instanceof Error ? error.message : String(error)}</p>
         <button onClick={reset} className="mt-4 rounded bg-black px-4 py-2 text-white">Tentar novamente</button>
       </div>
     </div>
