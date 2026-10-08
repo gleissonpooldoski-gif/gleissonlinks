@@ -731,7 +731,9 @@ export async function claimAndSendMediaOnceForAutomation(input: {
     const sessionDead = isSessionDeadError(e);
     // LOTE 14 — só libera o claim quando existe PROVA de não-entrega.
     // Ambíguo (timeout/rede) continua queimando o claim (fail-safe LOTE 8/9/10).
-    const canRelease = isProvenNotDelivered(e);
+    // Produto rejeitado pela Evolution (4xx) fica `failed` → pulado no ciclo,
+    // nunca repetido em loop. Sessão/breaker liberam o produto de volta.
+    const canRelease = isProvenNotDelivered(e) && !isProductRejection(e);
     log("SEND_FAILED", {
       ...ctx,
       claim_id: claimId,
@@ -1094,6 +1096,20 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
   }
 
 
+  // Sonda o grupo ANTES do claim: sessão travada, fora do grupo ou sem admin
+  // não queimam produto. Falha transitória da sonda não bloqueia o envio.
+  const probe = await probeGroupAccess(instanceName, groups[0]!.group_jid);
+  if (!probe.ok && probe.kind !== "transient") {
+    log("GROUP_PROBE_BLOCKED", { config_id: cfg.id, group_id: cfg.group_id, kind: probe.kind, error: probe.message });
+    await admin.from("automation_configs").update({
+      status: "waiting",
+      last_error: probe.message,
+      next_run_at: new Date(Date.now() + 5 * 60_000).toISOString(),
+    }).eq("id", cfg.id);
+    return;
+  }
+  if (!probe.ok) log("GROUP_PROBE_TRANSIENT", { config_id: cfg.id, error: probe.message });
+
   // Renderiza legenda
   const { loadLayoutFor, resolveHeader } = await import("@/modules/posts/layout.functions");
   const { renderPost } = await import("@/modules/posts/render");
@@ -1425,7 +1441,7 @@ export const Route = createFileRoute("/api/public/hooks/automation-tick")({
             const duration = Date.now() - cfgStart;
             results.push({ id: cfg.id, ok: true, duration_ms: duration });
           } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
+            const msg = describeError(err);
             const duration = Date.now() - cfgStart;
             const cls = classifyAutomationError(err);
             log("TICK_CONFIG_ERROR", { ...ctx, error: msg, error_class: cls, duration_ms: duration });
