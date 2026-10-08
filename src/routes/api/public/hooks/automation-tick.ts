@@ -172,6 +172,22 @@ function describeError(err: unknown): string {
   return parts.join(" ");
 }
 
+/** Lê TODOS os product_id paginando de 1000 em 1000 (limite do banco). */
+async function fetchAllProductIds(
+  page: (from: number, to: number) => PromiseLike<{ data: any[] | null; error: any }>,
+): Promise<string[]> {
+  const SIZE = 1000;
+  const out: string[] = [];
+  for (let i = 0; i < 50; i++) {
+    const { data, error } = await page(i * SIZE, i * SIZE + SIZE - 1);
+    if (error) throw new Error(`Falha ao ler histórico de envios: ${describeError(error)}`);
+    const rows = data ?? [];
+    for (const r of rows) if (r?.product_id) out.push(String(r.product_id));
+    if (rows.length < SIZE) break;
+  }
+  return out;
+}
+
 
 
 
