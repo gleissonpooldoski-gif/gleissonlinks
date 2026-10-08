@@ -829,6 +829,8 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
   // `availability='active'` da query abaixo.
 
   const ANTI_REPEAT_HOURS = 24;
+  const excluded = new Set<string>();
+  let excludedLoaded = false;
 
   async function pickNext(): Promise<any | null> {
     // Inventário obrigatório por canal + grupo. Legados sem grupo ficam
@@ -925,6 +927,8 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
       return;
     }
     await admin.from("automation_group_sends").delete().eq("config_id", cfg.id);
+    excluded.clear();
+    excludedLoaded = false;
     product = await pickNext();
     if (!product) {
       // Estoque momentaneamente vazio: transitório — aguarda novos produtos.
