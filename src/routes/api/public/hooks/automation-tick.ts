@@ -835,20 +835,35 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
     // pendentes e jamais são enviados automaticamente.
     if (!cfg.group_id) return null;
 
-    // Sends do ciclo + histórico anti-repetição em paralelo (1 round-trip).
-    const since = new Date(Date.now() - ANTI_REPEAT_HOURS * 3600_000).toISOString();
-    const [sentRes, recentRes] = await Promise.all([
-      admin.from("automation_group_sends").select("product_id").eq("config_id", cfg.id),
-      admin
-        .from("whatsapp_campaign_history")
-        .select("product_id")
-        .eq("config_id", cfg.id)
-        .eq("status", "sent")
-        .gte("sent_at", since),
-    ]);
-    const excluded = new Set<string>();
-    for (const r of sentRes.data ?? []) if (r?.product_id) excluded.add(r.product_id);
-    for (const r of recentRes.data ?? []) if (r?.product_id) excluded.add(r.product_id);
+    // Sends do ciclo + histórico anti-repetição. PAGINADO: o banco devolve no
+    // máximo 1000 linhas por consulta; acima disso produtos já enviados
+    // "sumiam" da exclusão, o claim dava duplicado e o grupo parava de enviar.
+    if (!excludedLoaded) {
+      const since = new Date(Date.now() - ANTI_REPEAT_HOURS * 3600_000).toISOString();
+      const [sentIds, recentIds] = await Promise.all([
+        fetchAllProductIds((from, to) =>
+          admin
+            .from("automation_group_sends")
+            .select("product_id")
+            .eq("config_id", cfg.id)
+            .order("id", { ascending: true })
+            .range(from, to),
+        ),
+        fetchAllProductIds((from, to) =>
+          admin
+            .from("whatsapp_campaign_history")
+            .select("product_id")
+            .eq("config_id", cfg.id)
+            .eq("status", "sent")
+            .gte("sent_at", since)
+            .order("id", { ascending: true })
+            .range(from, to),
+        ),
+      ]);
+      for (const id of sentIds) excluded.add(id);
+      for (const id of recentIds) excluded.add(id);
+      excludedLoaded = true;
+    }
 
     // Nunca serializar os IDs já enviados em `.not("id", "in", ...)`.
     // Mesmo uma lista aparentemente pequena pode ultrapassar limites de URL
