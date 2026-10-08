@@ -1269,6 +1269,7 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
       await new Promise((r) => setTimeout(r, 800));
       anySent = true;
     } else {
+      lastSendError = err;
       // NUNCA realimentar o breaker com o próprio erro "breaker aberto":
       // isso criava um laço em que a instância nunca voltava a fechar.
       const isBreakerOwnError = /circuit breaker aberto/i.test(err ?? "");
@@ -1335,10 +1336,25 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
     }
   }
 
-  // LOTE 8 — a reserva já foi feita ANTES de cada envio (idempotência
-  // garantida pelo banco). O upsert pós-envio que existia aqui era
-  // redundante e mascarava a real ordem dos eventos. Removido.
-  void anySent;
+  // Nada saiu de fato: NUNCA marcar como enviado nem limpar o aviso.
+  // - Só duplicado (produto já reservado): tenta outro produto no próximo minuto.
+  // - Falha real: grava o erro real e segue para o próximo produto no intervalo.
+  if (!anySent) {
+    const reason = lastSendError
+      ? lastSendError.slice(0, 500)
+      : onlyDuplicates
+        ? null
+        : "Nenhum envio realizado neste ciclo";
+    log("TICK_NOT_SENT", { config_id: cfg.id, group_id: cfg.group_id, only_duplicates: onlyDuplicates, error: reason });
+    await admin.from("automation_configs").update({
+      status: "running",
+      ...(reason ? { last_error: reason } : {}),
+      next_run_at: new Date(
+        Date.now() + (lastSendError ? cfg.intervalo_min * 60_000 : 60_000),
+      ).toISOString(),
+    }).eq("id", cfg.id);
+    return;
+  }
 
 
 
