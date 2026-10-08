@@ -1181,6 +1181,8 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
 
 
   let anySent = false;
+  let onlyDuplicates = false;
+  let lastSendError: string | null = null;
   const productSourceJid: string | null = (product as { source_group_jid?: string | null }).source_group_jid ?? null;
   for (const g of groups) {
     // Bloqueio de isolamento: se o produto foi capturado de outro grupo,
@@ -1230,9 +1232,15 @@ async function tickOneForConfig(admin: any, cfg: any): Promise<void> {
       },
     });
 
-    if (claimResult.outcome === "duplicate") continue;
+    if (claimResult.outcome === "duplicate") {
+      // Produto já reservado (outro worker/tick). Não conta como envio.
+      onlyDuplicates = true;
+      excluded.add(product.id);
+      continue;
+    }
 
     if (claimResult.outcome === "failed" && !claimResult.claimId) {
+      lastSendError = claimResult.error;
       await admin.from("whatsapp_campaign_history").insert({
         user_id: cfg.user_id,
         config_id: cfg.id,
