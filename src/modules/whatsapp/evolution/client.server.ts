@@ -197,7 +197,13 @@ export async function evolutionJson<T = unknown>(
   const text = await res.text();
   if (!res.ok) {
     if (isTunnelOfflineStatus(res.status) || /error code: ?1016|error code: ?1033|cloudflare/i.test(text)) {
-      throw new Error(TUNNEL_OFFLINE_MSG);
+      const err = new Error(TUNNEL_OFFLINE_MSG);
+      // 530/522/523 = a Cloudflare nem alcançou o servidor da Evolution:
+      // prova de que a mensagem NÃO foi entregue. 524 (timeout) é ambíguo.
+      if (res.status === 530 || res.status === 522 || res.status === 523) {
+        (err as any).code = "TUNNEL_ORIGIN_DOWN";
+      }
+      throw err;
     }
     if (isSocketClosedText(text)) {
       const err = new Error(SOCKET_CLOSED_MSG);
