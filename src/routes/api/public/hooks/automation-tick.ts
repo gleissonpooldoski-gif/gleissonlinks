@@ -120,7 +120,9 @@ function isProvenNotDelivered(err: unknown): boolean {
     msg.startsWith("CLAIM_VALIDATION_FAILED") ||
     msg.startsWith("INVALID_") ||
     // Corpo "Connection Closed" recebido da Evolution = rejeição explícita.
-    (err as { code?: string } | null)?.code === "SOCKET_CLOSED"
+    (err as { code?: string } | null)?.code === "SOCKET_CLOSED" ||
+    // Servidor da Evolution fora do ar (túnel caiu): nada saiu, produto volta ao ciclo.
+    (err as { code?: string } | null)?.code === "TUNNEL_ORIGIN_DOWN"
   ) {
     return true;
   }
