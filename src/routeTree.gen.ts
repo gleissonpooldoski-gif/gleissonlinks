@@ -9,94 +9,59 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as ConfigAfiliadosRouteImport } from './routes/config-afiliados'
-import { Route as FalhasRouteImport } from './routes/falhas'
-import { Route as InstagramRouteImport } from './routes/instagram'
-import { Route as LimpezaProdutosRouteImport } from './routes/limpeza-produtos'
-import { Route as RelatoriosRouteImport } from './routes/relatorios'
-import { Route as SaudeRouteImport } from './routes/saude'
-import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
-import { Route as ConfiguracoesEnviosWhatsappRouteImport } from './routes/configuracoes.envios-whatsapp'
-import { Route as ConfiguracoesSessoesWhatsappRouteImport } from './routes/configuracoes.sessoes-whatsapp'
-import { Route as GSlugRouteImport } from './routes/g.$slug'
-import { Route as InstagramAutomacoesRouteImport } from './routes/instagram.automacoes'
-import { Route as InstagramComentariosRouteImport } from './routes/instagram.comentarios'
-import { Route as InstagramConfiguracoesRouteImport } from './routes/instagram.configuracoes'
-import { Route as InstagramDashboardRouteImport } from './routes/instagram.dashboard'
-import { Route as InstagramDiagnosticoRouteImport } from './routes/instagram.diagnostico'
-import { Route as InstagramMensagensRouteImport } from './routes/instagram.mensagens'
-import { Route as InstagramPublicacoesRouteImport } from './routes/instagram.publicacoes'
-import { Route as InstagramStoriesRouteImport } from './routes/instagram.stories'
+import { Route as TemplatesRouteImport } from './routes/templates'
+import { Route as SaudeRouteImport } from './routes/saude'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as LimpezaProdutosRouteImport } from './routes/limpeza-produtos'
+import { Route as InstagramRouteImport } from './routes/instagram'
+import { Route as FalhasRouteImport } from './routes/falhas'
+import { Route as ConfigAfiliadosRouteImport } from './routes/config-afiliados'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as InstagramTemplatesRouteImport } from './routes/instagram.templates'
-import { Route as ApiMlCallbackRouteImport } from './routes/api/ml/callback'
-import { Route as ApiMlProbeRouteImport } from './routes/api/ml/probe'
-import { Route as ApiPublicImgProxyRouteImport } from './routes/api/public/img-proxy'
-import { Route as CanaisIdEditarRouteImport } from './routes/canais.$id.editar'
+import { Route as InstagramStoriesRouteImport } from './routes/instagram.stories'
+import { Route as InstagramPublicacoesRouteImport } from './routes/instagram.publicacoes'
+import { Route as InstagramMensagensRouteImport } from './routes/instagram.mensagens'
+import { Route as InstagramDiagnosticoRouteImport } from './routes/instagram.diagnostico'
+import { Route as InstagramDashboardRouteImport } from './routes/instagram.dashboard'
+import { Route as InstagramConfiguracoesRouteImport } from './routes/instagram.configuracoes'
+import { Route as InstagramComentariosRouteImport } from './routes/instagram.comentarios'
+import { Route as InstagramAutomacoesRouteImport } from './routes/instagram.automacoes'
+import { Route as GSlugRouteImport } from './routes/g.$slug'
+import { Route as ConfiguracoesSessoesWhatsappRouteImport } from './routes/configuracoes.sessoes-whatsapp'
+import { Route as ConfiguracoesEnviosWhatsappRouteImport } from './routes/configuracoes.envios-whatsapp'
 import { Route as TemplatesEditorIdRouteImport } from './routes/templates.editor.$id'
-import { Route as ApiPublicHooksAutomationTickRouteImport } from './routes/api/public/hooks/automation-tick'
-import { Route as ApiPublicHooksDebugShopeeProductRouteImport } from './routes/api/public/hooks/debug-shopee-product'
-import { Route as ApiPublicHooksEvolutionHealthcheckRouteImport } from './routes/api/public/hooks/evolution-healthcheck'
-import { Route as ApiPublicHooksInstagramTickRouteImport } from './routes/api/public/hooks/instagram-tick'
-import { Route as ApiPublicHooksPriceBackfillRouteImport } from './routes/api/public/hooks/price-backfill'
-import { Route as ApiPublicHooksProductsValidateRouteImport } from './routes/api/public/hooks/products-validate'
-import { Route as ApiPublicHooksShopeeRepairPilotRouteImport } from './routes/api/public/hooks/shopee-repair-pilot'
-import { Route as ApiPublicHooksShopeeRepairRetryRouteImport } from './routes/api/public/hooks/shopee-repair-retry'
-import { Route as ApiPublicHooksShopeeRepairV2RouteImport } from './routes/api/public/hooks/shopee-repair-v2'
-import { Route as ApiPublicHooksShopeeReportsSyncRouteImport } from './routes/api/public/hooks/shopee-reports-sync'
-import { Route as ApiPublicHooksSystemReaperRouteImport } from './routes/api/public/hooks/system-reaper'
-import { Route as ApiPublicHooksTunnelHealthRouteImport } from './routes/api/public/hooks/tunnel-health'
-import { Route as ApiPublicHooksTunnelUrlRouteImport } from './routes/api/public/hooks/tunnel-url'
-import { Route as ApiPublicInstagramCallbackRouteImport } from './routes/api/public/instagram/callback'
-import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
-import { Route as ApiPublicWebhooksInstagramRouteImport } from './routes/api/public/webhooks/instagram'
-import { Route as ApiPublicWhatsappConnectRouteImport } from './routes/api/public/whatsapp/connect'
-import { Route as ApiPublicWhatsappDiagnosticRouteImport } from './routes/api/public/whatsapp/diagnostic'
+import { Route as CanaisIdEditarRouteImport } from './routes/canais.$id.editar'
+import { Route as ApiPublicImgProxyRouteImport } from './routes/api/public/img-proxy'
+import { Route as ApiMlProbeRouteImport } from './routes/api/ml/probe'
+import { Route as ApiMlCallbackRouteImport } from './routes/api/ml/callback'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
-import { Route as ApiPublicChannelsWhatsappConnectRouteImport } from './routes/api/public/channels/whatsapp/connect'
-import { Route as ApiPublicChannelsWhatsappSessionStatusRouteImport } from './routes/api/public/channels/whatsapp/session-status'
+import { Route as ApiPublicWhatsappDiagnosticRouteImport } from './routes/api/public/whatsapp/diagnostic'
+import { Route as ApiPublicWhatsappConnectRouteImport } from './routes/api/public/whatsapp/connect'
+import { Route as ApiPublicWebhooksInstagramRouteImport } from './routes/api/public/webhooks/instagram'
+import { Route as ApiPublicMetaWebhookRouteImport } from './routes/api/public/meta/webhook'
+import { Route as ApiPublicInstagramCallbackRouteImport } from './routes/api/public/instagram/callback'
+import { Route as ApiPublicHooksTunnelUrlRouteImport } from './routes/api/public/hooks/tunnel-url'
+import { Route as ApiPublicHooksTunnelHealthRouteImport } from './routes/api/public/hooks/tunnel-health'
+import { Route as ApiPublicHooksSystemReaperRouteImport } from './routes/api/public/hooks/system-reaper'
+import { Route as ApiPublicHooksShopeeReportsSyncRouteImport } from './routes/api/public/hooks/shopee-reports-sync'
+import { Route as ApiPublicHooksShopeeRepairV2RouteImport } from './routes/api/public/hooks/shopee-repair-v2'
+import { Route as ApiPublicHooksShopeeRepairRetryRouteImport } from './routes/api/public/hooks/shopee-repair-retry'
+import { Route as ApiPublicHooksShopeeRepairPilotRouteImport } from './routes/api/public/hooks/shopee-repair-pilot'
+import { Route as ApiPublicHooksProductsValidateRouteImport } from './routes/api/public/hooks/products-validate'
+import { Route as ApiPublicHooksPriceBackfillRouteImport } from './routes/api/public/hooks/price-backfill'
+import { Route as ApiPublicHooksInstagramTickRouteImport } from './routes/api/public/hooks/instagram-tick'
+import { Route as ApiPublicHooksEvolutionHealthcheckRouteImport } from './routes/api/public/hooks/evolution-healthcheck'
+import { Route as ApiPublicHooksDebugShopeeProductRouteImport } from './routes/api/public/hooks/debug-shopee-product'
+import { Route as ApiPublicHooksAutomationTickRouteImport } from './routes/api/public/hooks/automation-tick'
 import { Route as ApiPublicInstabotREventIdRouteImport } from './routes/api/public/instabot/r.$eventId'
+import { Route as ApiPublicChannelsWhatsappSessionStatusRouteImport } from './routes/api/public/channels/whatsapp/session-status'
+import { Route as ApiPublicChannelsWhatsappConnectRouteImport } from './routes/api/public/channels/whatsapp/connect'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConfigAfiliadosRoute = ConfigAfiliadosRouteImport.update({
-  id: '/config-afiliados',
-  path: '/config-afiliados',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FalhasRoute = FalhasRouteImport.update({
-  id: '/falhas',
-  path: '/falhas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InstagramRoute = InstagramRouteImport.update({
-  id: '/instagram',
-  path: '/instagram',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LimpezaProdutosRoute = LimpezaProdutosRouteImport.update({
-  id: '/limpeza-produtos',
-  path: '/limpeza-produtos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RelatoriosRoute = RelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SaudeRoute = SaudeRouteImport.update({
-  id: '/saude',
-  path: '/saude',
+const WhatsappRoute = WhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TemplatesRoute = TemplatesRouteImport.update({
@@ -104,61 +69,49 @@ const TemplatesRoute = TemplatesRouteImport.update({
   path: '/templates',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WhatsappRoute = WhatsappRouteImport.update({
-  id: '/whatsapp',
-  path: '/whatsapp',
+const SaudeRoute = SaudeRouteImport.update({
+  id: '/saude',
+  path: '/saude',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConfiguracoesEnviosWhatsappRoute =
-  ConfiguracoesEnviosWhatsappRouteImport.update({
-    id: '/configuracoes/envios-whatsapp',
-    path: '/configuracoes/envios-whatsapp',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ConfiguracoesSessoesWhatsappRoute =
-  ConfiguracoesSessoesWhatsappRouteImport.update({
-    id: '/configuracoes/sessoes-whatsapp',
-    path: '/configuracoes/sessoes-whatsapp',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const GSlugRoute = GSlugRouteImport.update({
-  id: '/g/$slug',
-  path: '/g/$slug',
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InstagramAutomacoesRoute = InstagramAutomacoesRouteImport.update({
-  id: '/automacoes',
-  path: '/automacoes',
-  getParentRoute: () => InstagramRoute,
+const LimpezaProdutosRoute = LimpezaProdutosRouteImport.update({
+  id: '/limpeza-produtos',
+  path: '/limpeza-produtos',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const InstagramComentariosRoute = InstagramComentariosRouteImport.update({
-  id: '/comentarios',
-  path: '/comentarios',
-  getParentRoute: () => InstagramRoute,
+const InstagramRoute = InstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const InstagramConfiguracoesRoute = InstagramConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => InstagramRoute,
+const FalhasRoute = FalhasRouteImport.update({
+  id: '/falhas',
+  path: '/falhas',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const InstagramDashboardRoute = InstagramDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => InstagramRoute,
+const ConfigAfiliadosRoute = ConfigAfiliadosRouteImport.update({
+  id: '/config-afiliados',
+  path: '/config-afiliados',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const InstagramDiagnosticoRoute = InstagramDiagnosticoRouteImport.update({
-  id: '/diagnostico',
-  path: '/diagnostico',
-  getParentRoute: () => InstagramRoute,
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const InstagramMensagensRoute = InstagramMensagensRouteImport.update({
-  id: '/mensagens',
-  path: '/mensagens',
-  getParentRoute: () => InstagramRoute,
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const InstagramPublicacoesRoute = InstagramPublicacoesRouteImport.update({
-  id: '/publicacoes',
-  path: '/publicacoes',
+const InstagramTemplatesRoute = InstagramTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
   getParentRoute: () => InstagramRoute,
 } as any)
 const InstagramStoriesRoute = InstagramStoriesRouteImport.update({
@@ -166,19 +119,66 @@ const InstagramStoriesRoute = InstagramStoriesRouteImport.update({
   path: '/stories',
   getParentRoute: () => InstagramRoute,
 } as any)
-const InstagramTemplatesRoute = InstagramTemplatesRouteImport.update({
-  id: '/templates',
-  path: '/templates',
+const InstagramPublicacoesRoute = InstagramPublicacoesRouteImport.update({
+  id: '/publicacoes',
+  path: '/publicacoes',
   getParentRoute: () => InstagramRoute,
 } as any)
-const ApiMlCallbackRoute = ApiMlCallbackRouteImport.update({
-  id: '/api/ml/callback',
-  path: '/api/ml/callback',
+const InstagramMensagensRoute = InstagramMensagensRouteImport.update({
+  id: '/mensagens',
+  path: '/mensagens',
+  getParentRoute: () => InstagramRoute,
+} as any)
+const InstagramDiagnosticoRoute = InstagramDiagnosticoRouteImport.update({
+  id: '/diagnostico',
+  path: '/diagnostico',
+  getParentRoute: () => InstagramRoute,
+} as any)
+const InstagramDashboardRoute = InstagramDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => InstagramRoute,
+} as any)
+const InstagramConfiguracoesRoute = InstagramConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => InstagramRoute,
+} as any)
+const InstagramComentariosRoute = InstagramComentariosRouteImport.update({
+  id: '/comentarios',
+  path: '/comentarios',
+  getParentRoute: () => InstagramRoute,
+} as any)
+const InstagramAutomacoesRoute = InstagramAutomacoesRouteImport.update({
+  id: '/automacoes',
+  path: '/automacoes',
+  getParentRoute: () => InstagramRoute,
+} as any)
+const GSlugRoute = GSlugRouteImport.update({
+  id: '/g/$slug',
+  path: '/g/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMlProbeRoute = ApiMlProbeRouteImport.update({
-  id: '/api/ml/probe',
-  path: '/api/ml/probe',
+const ConfiguracoesSessoesWhatsappRoute =
+  ConfiguracoesSessoesWhatsappRouteImport.update({
+    id: '/configuracoes/sessoes-whatsapp',
+    path: '/configuracoes/sessoes-whatsapp',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ConfiguracoesEnviosWhatsappRoute =
+  ConfiguracoesEnviosWhatsappRouteImport.update({
+    id: '/configuracoes/envios-whatsapp',
+    path: '/configuracoes/envios-whatsapp',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const TemplatesEditorIdRoute = TemplatesEditorIdRouteImport.update({
+  id: '/editor/$id',
+  path: '/editor/$id',
+  getParentRoute: () => TemplatesRoute,
+} as any)
+const CanaisIdEditarRoute = CanaisIdEditarRouteImport.update({
+  id: '/canais/$id/editar',
+  path: '/canais/$id/editar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicImgProxyRoute = ApiPublicImgProxyRouteImport.update({
@@ -186,114 +186,20 @@ const ApiPublicImgProxyRoute = ApiPublicImgProxyRouteImport.update({
   path: '/api/public/img-proxy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CanaisIdEditarRoute = CanaisIdEditarRouteImport.update({
-  id: '/canais/$id/editar',
-  path: '/canais/$id/editar',
+const ApiMlProbeRoute = ApiMlProbeRouteImport.update({
+  id: '/api/ml/probe',
+  path: '/api/ml/probe',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TemplatesEditorIdRoute = TemplatesEditorIdRouteImport.update({
-  id: '/editor/$id',
-  path: '/editor/$id',
-  getParentRoute: () => TemplatesRoute,
-} as any)
-const ApiPublicHooksAutomationTickRoute =
-  ApiPublicHooksAutomationTickRouteImport.update({
-    id: '/api/public/hooks/automation-tick',
-    path: '/api/public/hooks/automation-tick',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksDebugShopeeProductRoute =
-  ApiPublicHooksDebugShopeeProductRouteImport.update({
-    id: '/api/public/hooks/debug-shopee-product',
-    path: '/api/public/hooks/debug-shopee-product',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksEvolutionHealthcheckRoute =
-  ApiPublicHooksEvolutionHealthcheckRouteImport.update({
-    id: '/api/public/hooks/evolution-healthcheck',
-    path: '/api/public/hooks/evolution-healthcheck',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksInstagramTickRoute =
-  ApiPublicHooksInstagramTickRouteImport.update({
-    id: '/api/public/hooks/instagram-tick',
-    path: '/api/public/hooks/instagram-tick',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksPriceBackfillRoute =
-  ApiPublicHooksPriceBackfillRouteImport.update({
-    id: '/api/public/hooks/price-backfill',
-    path: '/api/public/hooks/price-backfill',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksProductsValidateRoute =
-  ApiPublicHooksProductsValidateRouteImport.update({
-    id: '/api/public/hooks/products-validate',
-    path: '/api/public/hooks/products-validate',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksShopeeRepairPilotRoute =
-  ApiPublicHooksShopeeRepairPilotRouteImport.update({
-    id: '/api/public/hooks/shopee-repair-pilot',
-    path: '/api/public/hooks/shopee-repair-pilot',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksShopeeRepairRetryRoute =
-  ApiPublicHooksShopeeRepairRetryRouteImport.update({
-    id: '/api/public/hooks/shopee-repair-retry',
-    path: '/api/public/hooks/shopee-repair-retry',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksShopeeRepairV2Route =
-  ApiPublicHooksShopeeRepairV2RouteImport.update({
-    id: '/api/public/hooks/shopee-repair-v2',
-    path: '/api/public/hooks/shopee-repair-v2',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksShopeeReportsSyncRoute =
-  ApiPublicHooksShopeeReportsSyncRouteImport.update({
-    id: '/api/public/hooks/shopee-reports-sync',
-    path: '/api/public/hooks/shopee-reports-sync',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksSystemReaperRoute =
-  ApiPublicHooksSystemReaperRouteImport.update({
-    id: '/api/public/hooks/system-reaper',
-    path: '/api/public/hooks/system-reaper',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksTunnelHealthRoute =
-  ApiPublicHooksTunnelHealthRouteImport.update({
-    id: '/api/public/hooks/tunnel-health',
-    path: '/api/public/hooks/tunnel-health',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksTunnelUrlRoute = ApiPublicHooksTunnelUrlRouteImport.update({
-  id: '/api/public/hooks/tunnel-url',
-  path: '/api/public/hooks/tunnel-url',
+const ApiMlCallbackRoute = ApiMlCallbackRouteImport.update({
+  id: '/api/ml/callback',
+  path: '/api/ml/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicInstagramCallbackRoute =
-  ApiPublicInstagramCallbackRouteImport.update({
-    id: '/api/public/instagram/callback',
-    path: '/api/public/instagram/callback',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicMetaWebhookRoute = ApiPublicMetaWebhookRouteImport.update({
-  id: '/api/public/meta/webhook',
-  path: '/api/public/meta/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicWebhooksInstagramRoute =
-  ApiPublicWebhooksInstagramRouteImport.update({
-    id: '/api/public/webhooks/instagram',
-    path: '/api/public/webhooks/instagram',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicWhatsappConnectRoute =
-  ApiPublicWhatsappConnectRouteImport.update({
-    id: '/api/public/whatsapp/connect',
-    path: '/api/public/whatsapp/connect',
+const ApiPublicWhatsappWebhookRoute =
+  ApiPublicWhatsappWebhookRouteImport.update({
+    id: '/api/public/whatsapp/webhook',
+    path: '/api/public/whatsapp/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicWhatsappDiagnosticRoute =
@@ -302,16 +208,110 @@ const ApiPublicWhatsappDiagnosticRoute =
     path: '/api/public/whatsapp/diagnostic',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicWhatsappWebhookRoute =
-  ApiPublicWhatsappWebhookRouteImport.update({
-    id: '/api/public/whatsapp/webhook',
-    path: '/api/public/whatsapp/webhook',
+const ApiPublicWhatsappConnectRoute =
+  ApiPublicWhatsappConnectRouteImport.update({
+    id: '/api/public/whatsapp/connect',
+    path: '/api/public/whatsapp/connect',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicChannelsWhatsappConnectRoute =
-  ApiPublicChannelsWhatsappConnectRouteImport.update({
-    id: '/api/public/channels/whatsapp/connect',
-    path: '/api/public/channels/whatsapp/connect',
+const ApiPublicWebhooksInstagramRoute =
+  ApiPublicWebhooksInstagramRouteImport.update({
+    id: '/api/public/webhooks/instagram',
+    path: '/api/public/webhooks/instagram',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicMetaWebhookRoute = ApiPublicMetaWebhookRouteImport.update({
+  id: '/api/public/meta/webhook',
+  path: '/api/public/meta/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicInstagramCallbackRoute =
+  ApiPublicInstagramCallbackRouteImport.update({
+    id: '/api/public/instagram/callback',
+    path: '/api/public/instagram/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksTunnelUrlRoute = ApiPublicHooksTunnelUrlRouteImport.update({
+  id: '/api/public/hooks/tunnel-url',
+  path: '/api/public/hooks/tunnel-url',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksTunnelHealthRoute =
+  ApiPublicHooksTunnelHealthRouteImport.update({
+    id: '/api/public/hooks/tunnel-health',
+    path: '/api/public/hooks/tunnel-health',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksSystemReaperRoute =
+  ApiPublicHooksSystemReaperRouteImport.update({
+    id: '/api/public/hooks/system-reaper',
+    path: '/api/public/hooks/system-reaper',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksShopeeReportsSyncRoute =
+  ApiPublicHooksShopeeReportsSyncRouteImport.update({
+    id: '/api/public/hooks/shopee-reports-sync',
+    path: '/api/public/hooks/shopee-reports-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksShopeeRepairV2Route =
+  ApiPublicHooksShopeeRepairV2RouteImport.update({
+    id: '/api/public/hooks/shopee-repair-v2',
+    path: '/api/public/hooks/shopee-repair-v2',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksShopeeRepairRetryRoute =
+  ApiPublicHooksShopeeRepairRetryRouteImport.update({
+    id: '/api/public/hooks/shopee-repair-retry',
+    path: '/api/public/hooks/shopee-repair-retry',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksShopeeRepairPilotRoute =
+  ApiPublicHooksShopeeRepairPilotRouteImport.update({
+    id: '/api/public/hooks/shopee-repair-pilot',
+    path: '/api/public/hooks/shopee-repair-pilot',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksProductsValidateRoute =
+  ApiPublicHooksProductsValidateRouteImport.update({
+    id: '/api/public/hooks/products-validate',
+    path: '/api/public/hooks/products-validate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksPriceBackfillRoute =
+  ApiPublicHooksPriceBackfillRouteImport.update({
+    id: '/api/public/hooks/price-backfill',
+    path: '/api/public/hooks/price-backfill',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksInstagramTickRoute =
+  ApiPublicHooksInstagramTickRouteImport.update({
+    id: '/api/public/hooks/instagram-tick',
+    path: '/api/public/hooks/instagram-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksEvolutionHealthcheckRoute =
+  ApiPublicHooksEvolutionHealthcheckRouteImport.update({
+    id: '/api/public/hooks/evolution-healthcheck',
+    path: '/api/public/hooks/evolution-healthcheck',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksDebugShopeeProductRoute =
+  ApiPublicHooksDebugShopeeProductRouteImport.update({
+    id: '/api/public/hooks/debug-shopee-product',
+    path: '/api/public/hooks/debug-shopee-product',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksAutomationTickRoute =
+  ApiPublicHooksAutomationTickRouteImport.update({
+    id: '/api/public/hooks/automation-tick',
+    path: '/api/public/hooks/automation-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicInstabotREventIdRoute =
+  ApiPublicInstabotREventIdRouteImport.update({
+    id: '/api/public/instabot/r/$eventId',
+    path: '/api/public/instabot/r/$eventId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicChannelsWhatsappSessionStatusRoute =
@@ -320,10 +320,10 @@ const ApiPublicChannelsWhatsappSessionStatusRoute =
     path: '/api/public/channels/whatsapp/session-status',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicInstabotREventIdRoute =
-  ApiPublicInstabotREventIdRouteImport.update({
-    id: '/api/public/instabot/r/$eventId',
-    path: '/api/public/instabot/r/$eventId',
+const ApiPublicChannelsWhatsappConnectRoute =
+  ApiPublicChannelsWhatsappConnectRouteImport.update({
+    id: '/api/public/channels/whatsapp/connect',
+    path: '/api/public/channels/whatsapp/connect',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -681,60 +681,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/config-afiliados': {
-      id: '/config-afiliados'
-      path: '/config-afiliados'
-      fullPath: '/config-afiliados'
-      preLoaderRoute: typeof ConfigAfiliadosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/falhas': {
-      id: '/falhas'
-      path: '/falhas'
-      fullPath: '/falhas'
-      preLoaderRoute: typeof FalhasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/instagram': {
-      id: '/instagram'
-      path: '/instagram'
-      fullPath: '/instagram'
-      preLoaderRoute: typeof InstagramRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/limpeza-produtos': {
-      id: '/limpeza-produtos'
-      path: '/limpeza-produtos'
-      fullPath: '/limpeza-produtos'
-      preLoaderRoute: typeof LimpezaProdutosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/relatorios': {
-      id: '/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof RelatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/saude': {
-      id: '/saude'
-      path: '/saude'
-      fullPath: '/saude'
-      preLoaderRoute: typeof SaudeRouteImport
+    '/whatsapp': {
+      id: '/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof WhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/templates': {
@@ -744,81 +695,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/whatsapp': {
-      id: '/whatsapp'
-      path: '/whatsapp'
-      fullPath: '/whatsapp'
-      preLoaderRoute: typeof WhatsappRouteImport
+    '/saude': {
+      id: '/saude'
+      path: '/saude'
+      fullPath: '/saude'
+      preLoaderRoute: typeof SaudeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/configuracoes/envios-whatsapp': {
-      id: '/configuracoes/envios-whatsapp'
-      path: '/configuracoes/envios-whatsapp'
-      fullPath: '/configuracoes/envios-whatsapp'
-      preLoaderRoute: typeof ConfiguracoesEnviosWhatsappRouteImport
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/configuracoes/sessoes-whatsapp': {
-      id: '/configuracoes/sessoes-whatsapp'
-      path: '/configuracoes/sessoes-whatsapp'
-      fullPath: '/configuracoes/sessoes-whatsapp'
-      preLoaderRoute: typeof ConfiguracoesSessoesWhatsappRouteImport
+    '/limpeza-produtos': {
+      id: '/limpeza-produtos'
+      path: '/limpeza-produtos'
+      fullPath: '/limpeza-produtos'
+      preLoaderRoute: typeof LimpezaProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/g/$slug': {
-      id: '/g/$slug'
-      path: '/g/$slug'
-      fullPath: '/g/$slug'
-      preLoaderRoute: typeof GSlugRouteImport
+    '/instagram': {
+      id: '/instagram'
+      path: '/instagram'
+      fullPath: '/instagram'
+      preLoaderRoute: typeof InstagramRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/instagram/automacoes': {
-      id: '/instagram/automacoes'
-      path: '/automacoes'
-      fullPath: '/instagram/automacoes'
-      preLoaderRoute: typeof InstagramAutomacoesRouteImport
-      parentRoute: typeof InstagramRoute
+    '/falhas': {
+      id: '/falhas'
+      path: '/falhas'
+      fullPath: '/falhas'
+      preLoaderRoute: typeof FalhasRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instagram/comentarios': {
-      id: '/instagram/comentarios'
-      path: '/comentarios'
-      fullPath: '/instagram/comentarios'
-      preLoaderRoute: typeof InstagramComentariosRouteImport
-      parentRoute: typeof InstagramRoute
+    '/config-afiliados': {
+      id: '/config-afiliados'
+      path: '/config-afiliados'
+      fullPath: '/config-afiliados'
+      preLoaderRoute: typeof ConfigAfiliadosRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instagram/configuracoes': {
-      id: '/instagram/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/instagram/configuracoes'
-      preLoaderRoute: typeof InstagramConfiguracoesRouteImport
-      parentRoute: typeof InstagramRoute
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instagram/dashboard': {
-      id: '/instagram/dashboard'
-      path: '/dashboard'
-      fullPath: '/instagram/dashboard'
-      preLoaderRoute: typeof InstagramDashboardRouteImport
-      parentRoute: typeof InstagramRoute
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/instagram/diagnostico': {
-      id: '/instagram/diagnostico'
-      path: '/diagnostico'
-      fullPath: '/instagram/diagnostico'
-      preLoaderRoute: typeof InstagramDiagnosticoRouteImport
-      parentRoute: typeof InstagramRoute
-    }
-    '/instagram/mensagens': {
-      id: '/instagram/mensagens'
-      path: '/mensagens'
-      fullPath: '/instagram/mensagens'
-      preLoaderRoute: typeof InstagramMensagensRouteImport
-      parentRoute: typeof InstagramRoute
-    }
-    '/instagram/publicacoes': {
-      id: '/instagram/publicacoes'
-      path: '/publicacoes'
-      fullPath: '/instagram/publicacoes'
-      preLoaderRoute: typeof InstagramPublicacoesRouteImport
+    '/instagram/templates': {
+      id: '/instagram/templates'
+      path: '/templates'
+      fullPath: '/instagram/templates'
+      preLoaderRoute: typeof InstagramTemplatesRouteImport
       parentRoute: typeof InstagramRoute
     }
     '/instagram/stories': {
@@ -828,39 +765,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstagramStoriesRouteImport
       parentRoute: typeof InstagramRoute
     }
-    '/instagram/templates': {
-      id: '/instagram/templates'
-      path: '/templates'
-      fullPath: '/instagram/templates'
-      preLoaderRoute: typeof InstagramTemplatesRouteImport
+    '/instagram/publicacoes': {
+      id: '/instagram/publicacoes'
+      path: '/publicacoes'
+      fullPath: '/instagram/publicacoes'
+      preLoaderRoute: typeof InstagramPublicacoesRouteImport
       parentRoute: typeof InstagramRoute
     }
-    '/api/ml/callback': {
-      id: '/api/ml/callback'
-      path: '/api/ml/callback'
-      fullPath: '/api/ml/callback'
-      preLoaderRoute: typeof ApiMlCallbackRouteImport
+    '/instagram/mensagens': {
+      id: '/instagram/mensagens'
+      path: '/mensagens'
+      fullPath: '/instagram/mensagens'
+      preLoaderRoute: typeof InstagramMensagensRouteImport
+      parentRoute: typeof InstagramRoute
+    }
+    '/instagram/diagnostico': {
+      id: '/instagram/diagnostico'
+      path: '/diagnostico'
+      fullPath: '/instagram/diagnostico'
+      preLoaderRoute: typeof InstagramDiagnosticoRouteImport
+      parentRoute: typeof InstagramRoute
+    }
+    '/instagram/dashboard': {
+      id: '/instagram/dashboard'
+      path: '/dashboard'
+      fullPath: '/instagram/dashboard'
+      preLoaderRoute: typeof InstagramDashboardRouteImport
+      parentRoute: typeof InstagramRoute
+    }
+    '/instagram/configuracoes': {
+      id: '/instagram/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/instagram/configuracoes'
+      preLoaderRoute: typeof InstagramConfiguracoesRouteImport
+      parentRoute: typeof InstagramRoute
+    }
+    '/instagram/comentarios': {
+      id: '/instagram/comentarios'
+      path: '/comentarios'
+      fullPath: '/instagram/comentarios'
+      preLoaderRoute: typeof InstagramComentariosRouteImport
+      parentRoute: typeof InstagramRoute
+    }
+    '/instagram/automacoes': {
+      id: '/instagram/automacoes'
+      path: '/automacoes'
+      fullPath: '/instagram/automacoes'
+      preLoaderRoute: typeof InstagramAutomacoesRouteImport
+      parentRoute: typeof InstagramRoute
+    }
+    '/g/$slug': {
+      id: '/g/$slug'
+      path: '/g/$slug'
+      fullPath: '/g/$slug'
+      preLoaderRoute: typeof GSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/ml/probe': {
-      id: '/api/ml/probe'
-      path: '/api/ml/probe'
-      fullPath: '/api/ml/probe'
-      preLoaderRoute: typeof ApiMlProbeRouteImport
+    '/configuracoes/sessoes-whatsapp': {
+      id: '/configuracoes/sessoes-whatsapp'
+      path: '/configuracoes/sessoes-whatsapp'
+      fullPath: '/configuracoes/sessoes-whatsapp'
+      preLoaderRoute: typeof ConfiguracoesSessoesWhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/img-proxy': {
-      id: '/api/public/img-proxy'
-      path: '/api/public/img-proxy'
-      fullPath: '/api/public/img-proxy'
-      preLoaderRoute: typeof ApiPublicImgProxyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/canais/$id/editar': {
-      id: '/canais/$id/editar'
-      path: '/canais/$id/editar'
-      fullPath: '/canais/$id/editar'
-      preLoaderRoute: typeof CanaisIdEditarRouteImport
+    '/configuracoes/envios-whatsapp': {
+      id: '/configuracoes/envios-whatsapp'
+      path: '/configuracoes/envios-whatsapp'
+      fullPath: '/configuracoes/envios-whatsapp'
+      preLoaderRoute: typeof ConfiguracoesEnviosWhatsappRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/templates/editor/$id': {
@@ -870,130 +842,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TemplatesEditorIdRouteImport
       parentRoute: typeof TemplatesRoute
     }
-    '/api/public/hooks/automation-tick': {
-      id: '/api/public/hooks/automation-tick'
-      path: '/api/public/hooks/automation-tick'
-      fullPath: '/api/public/hooks/automation-tick'
-      preLoaderRoute: typeof ApiPublicHooksAutomationTickRouteImport
+    '/canais/$id/editar': {
+      id: '/canais/$id/editar'
+      path: '/canais/$id/editar'
+      fullPath: '/canais/$id/editar'
+      preLoaderRoute: typeof CanaisIdEditarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/debug-shopee-product': {
-      id: '/api/public/hooks/debug-shopee-product'
-      path: '/api/public/hooks/debug-shopee-product'
-      fullPath: '/api/public/hooks/debug-shopee-product'
-      preLoaderRoute: typeof ApiPublicHooksDebugShopeeProductRouteImport
+    '/api/public/img-proxy': {
+      id: '/api/public/img-proxy'
+      path: '/api/public/img-proxy'
+      fullPath: '/api/public/img-proxy'
+      preLoaderRoute: typeof ApiPublicImgProxyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/evolution-healthcheck': {
-      id: '/api/public/hooks/evolution-healthcheck'
-      path: '/api/public/hooks/evolution-healthcheck'
-      fullPath: '/api/public/hooks/evolution-healthcheck'
-      preLoaderRoute: typeof ApiPublicHooksEvolutionHealthcheckRouteImport
+    '/api/ml/probe': {
+      id: '/api/ml/probe'
+      path: '/api/ml/probe'
+      fullPath: '/api/ml/probe'
+      preLoaderRoute: typeof ApiMlProbeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/instagram-tick': {
-      id: '/api/public/hooks/instagram-tick'
-      path: '/api/public/hooks/instagram-tick'
-      fullPath: '/api/public/hooks/instagram-tick'
-      preLoaderRoute: typeof ApiPublicHooksInstagramTickRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/price-backfill': {
-      id: '/api/public/hooks/price-backfill'
-      path: '/api/public/hooks/price-backfill'
-      fullPath: '/api/public/hooks/price-backfill'
-      preLoaderRoute: typeof ApiPublicHooksPriceBackfillRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/products-validate': {
-      id: '/api/public/hooks/products-validate'
-      path: '/api/public/hooks/products-validate'
-      fullPath: '/api/public/hooks/products-validate'
-      preLoaderRoute: typeof ApiPublicHooksProductsValidateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/shopee-repair-pilot': {
-      id: '/api/public/hooks/shopee-repair-pilot'
-      path: '/api/public/hooks/shopee-repair-pilot'
-      fullPath: '/api/public/hooks/shopee-repair-pilot'
-      preLoaderRoute: typeof ApiPublicHooksShopeeRepairPilotRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/shopee-repair-retry': {
-      id: '/api/public/hooks/shopee-repair-retry'
-      path: '/api/public/hooks/shopee-repair-retry'
-      fullPath: '/api/public/hooks/shopee-repair-retry'
-      preLoaderRoute: typeof ApiPublicHooksShopeeRepairRetryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/shopee-repair-v2': {
-      id: '/api/public/hooks/shopee-repair-v2'
-      path: '/api/public/hooks/shopee-repair-v2'
-      fullPath: '/api/public/hooks/shopee-repair-v2'
-      preLoaderRoute: typeof ApiPublicHooksShopeeRepairV2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/shopee-reports-sync': {
-      id: '/api/public/hooks/shopee-reports-sync'
-      path: '/api/public/hooks/shopee-reports-sync'
-      fullPath: '/api/public/hooks/shopee-reports-sync'
-      preLoaderRoute: typeof ApiPublicHooksShopeeReportsSyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/system-reaper': {
-      id: '/api/public/hooks/system-reaper'
-      path: '/api/public/hooks/system-reaper'
-      fullPath: '/api/public/hooks/system-reaper'
-      preLoaderRoute: typeof ApiPublicHooksSystemReaperRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/tunnel-health': {
-      id: '/api/public/hooks/tunnel-health'
-      path: '/api/public/hooks/tunnel-health'
-      fullPath: '/api/public/hooks/tunnel-health'
-      preLoaderRoute: typeof ApiPublicHooksTunnelHealthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/tunnel-url': {
-      id: '/api/public/hooks/tunnel-url'
-      path: '/api/public/hooks/tunnel-url'
-      fullPath: '/api/public/hooks/tunnel-url'
-      preLoaderRoute: typeof ApiPublicHooksTunnelUrlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/instagram/callback': {
-      id: '/api/public/instagram/callback'
-      path: '/api/public/instagram/callback'
-      fullPath: '/api/public/instagram/callback'
-      preLoaderRoute: typeof ApiPublicInstagramCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/meta/webhook': {
-      id: '/api/public/meta/webhook'
-      path: '/api/public/meta/webhook'
-      fullPath: '/api/public/meta/webhook'
-      preLoaderRoute: typeof ApiPublicMetaWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/webhooks/instagram': {
-      id: '/api/public/webhooks/instagram'
-      path: '/api/public/webhooks/instagram'
-      fullPath: '/api/public/webhooks/instagram'
-      preLoaderRoute: typeof ApiPublicWebhooksInstagramRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/whatsapp/connect': {
-      id: '/api/public/whatsapp/connect'
-      path: '/api/public/whatsapp/connect'
-      fullPath: '/api/public/whatsapp/connect'
-      preLoaderRoute: typeof ApiPublicWhatsappConnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/whatsapp/diagnostic': {
-      id: '/api/public/whatsapp/diagnostic'
-      path: '/api/public/whatsapp/diagnostic'
-      fullPath: '/api/public/whatsapp/diagnostic'
-      preLoaderRoute: typeof ApiPublicWhatsappDiagnosticRouteImport
+    '/api/ml/callback': {
+      id: '/api/ml/callback'
+      path: '/api/ml/callback'
+      fullPath: '/api/ml/callback'
+      preLoaderRoute: typeof ApiMlCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/whatsapp/webhook': {
@@ -1003,11 +877,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWhatsappWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/channels/whatsapp/connect': {
-      id: '/api/public/channels/whatsapp/connect'
-      path: '/api/public/channels/whatsapp/connect'
-      fullPath: '/api/public/channels/whatsapp/connect'
-      preLoaderRoute: typeof ApiPublicChannelsWhatsappConnectRouteImport
+    '/api/public/whatsapp/diagnostic': {
+      id: '/api/public/whatsapp/diagnostic'
+      path: '/api/public/whatsapp/diagnostic'
+      fullPath: '/api/public/whatsapp/diagnostic'
+      preLoaderRoute: typeof ApiPublicWhatsappDiagnosticRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/connect': {
+      id: '/api/public/whatsapp/connect'
+      path: '/api/public/whatsapp/connect'
+      fullPath: '/api/public/whatsapp/connect'
+      preLoaderRoute: typeof ApiPublicWhatsappConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/instagram': {
+      id: '/api/public/webhooks/instagram'
+      path: '/api/public/webhooks/instagram'
+      fullPath: '/api/public/webhooks/instagram'
+      preLoaderRoute: typeof ApiPublicWebhooksInstagramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/meta/webhook': {
+      id: '/api/public/meta/webhook'
+      path: '/api/public/meta/webhook'
+      fullPath: '/api/public/meta/webhook'
+      preLoaderRoute: typeof ApiPublicMetaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/instagram/callback': {
+      id: '/api/public/instagram/callback'
+      path: '/api/public/instagram/callback'
+      fullPath: '/api/public/instagram/callback'
+      preLoaderRoute: typeof ApiPublicInstagramCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/tunnel-url': {
+      id: '/api/public/hooks/tunnel-url'
+      path: '/api/public/hooks/tunnel-url'
+      fullPath: '/api/public/hooks/tunnel-url'
+      preLoaderRoute: typeof ApiPublicHooksTunnelUrlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/tunnel-health': {
+      id: '/api/public/hooks/tunnel-health'
+      path: '/api/public/hooks/tunnel-health'
+      fullPath: '/api/public/hooks/tunnel-health'
+      preLoaderRoute: typeof ApiPublicHooksTunnelHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/system-reaper': {
+      id: '/api/public/hooks/system-reaper'
+      path: '/api/public/hooks/system-reaper'
+      fullPath: '/api/public/hooks/system-reaper'
+      preLoaderRoute: typeof ApiPublicHooksSystemReaperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/shopee-reports-sync': {
+      id: '/api/public/hooks/shopee-reports-sync'
+      path: '/api/public/hooks/shopee-reports-sync'
+      fullPath: '/api/public/hooks/shopee-reports-sync'
+      preLoaderRoute: typeof ApiPublicHooksShopeeReportsSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/shopee-repair-v2': {
+      id: '/api/public/hooks/shopee-repair-v2'
+      path: '/api/public/hooks/shopee-repair-v2'
+      fullPath: '/api/public/hooks/shopee-repair-v2'
+      preLoaderRoute: typeof ApiPublicHooksShopeeRepairV2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/shopee-repair-retry': {
+      id: '/api/public/hooks/shopee-repair-retry'
+      path: '/api/public/hooks/shopee-repair-retry'
+      fullPath: '/api/public/hooks/shopee-repair-retry'
+      preLoaderRoute: typeof ApiPublicHooksShopeeRepairRetryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/shopee-repair-pilot': {
+      id: '/api/public/hooks/shopee-repair-pilot'
+      path: '/api/public/hooks/shopee-repair-pilot'
+      fullPath: '/api/public/hooks/shopee-repair-pilot'
+      preLoaderRoute: typeof ApiPublicHooksShopeeRepairPilotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/products-validate': {
+      id: '/api/public/hooks/products-validate'
+      path: '/api/public/hooks/products-validate'
+      fullPath: '/api/public/hooks/products-validate'
+      preLoaderRoute: typeof ApiPublicHooksProductsValidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/price-backfill': {
+      id: '/api/public/hooks/price-backfill'
+      path: '/api/public/hooks/price-backfill'
+      fullPath: '/api/public/hooks/price-backfill'
+      preLoaderRoute: typeof ApiPublicHooksPriceBackfillRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/instagram-tick': {
+      id: '/api/public/hooks/instagram-tick'
+      path: '/api/public/hooks/instagram-tick'
+      fullPath: '/api/public/hooks/instagram-tick'
+      preLoaderRoute: typeof ApiPublicHooksInstagramTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/evolution-healthcheck': {
+      id: '/api/public/hooks/evolution-healthcheck'
+      path: '/api/public/hooks/evolution-healthcheck'
+      fullPath: '/api/public/hooks/evolution-healthcheck'
+      preLoaderRoute: typeof ApiPublicHooksEvolutionHealthcheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/debug-shopee-product': {
+      id: '/api/public/hooks/debug-shopee-product'
+      path: '/api/public/hooks/debug-shopee-product'
+      fullPath: '/api/public/hooks/debug-shopee-product'
+      preLoaderRoute: typeof ApiPublicHooksDebugShopeeProductRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/automation-tick': {
+      id: '/api/public/hooks/automation-tick'
+      path: '/api/public/hooks/automation-tick'
+      fullPath: '/api/public/hooks/automation-tick'
+      preLoaderRoute: typeof ApiPublicHooksAutomationTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/instabot/r/$eventId': {
+      id: '/api/public/instabot/r/$eventId'
+      path: '/api/public/instabot/r/$eventId'
+      fullPath: '/api/public/instabot/r/$eventId'
+      preLoaderRoute: typeof ApiPublicInstabotREventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/channels/whatsapp/session-status': {
@@ -1017,11 +1017,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicChannelsWhatsappSessionStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/instabot/r/$eventId': {
-      id: '/api/public/instabot/r/$eventId'
-      path: '/api/public/instabot/r/$eventId'
-      fullPath: '/api/public/instabot/r/$eventId'
-      preLoaderRoute: typeof ApiPublicInstabotREventIdRouteImport
+    '/api/public/channels/whatsapp/connect': {
+      id: '/api/public/channels/whatsapp/connect'
+      path: '/api/public/channels/whatsapp/connect'
+      fullPath: '/api/public/channels/whatsapp/connect'
+      preLoaderRoute: typeof ApiPublicChannelsWhatsappConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
