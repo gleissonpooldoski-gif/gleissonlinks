@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { publishForChannel } from "@/lib/instagram-publish.server";
 import { requireCronSecret } from "@/lib/public-auth.server";
 
+// O usuário desativou a verificação recorrente do Instagram em 13/11/2026.
+// Mesmo que o agendamento chame esta rota, nenhuma verificação é executada.
+const INSTAGRAM_TICK_ENABLED = false;
+
 /**
- * Called by pg_cron every minute. For each active schedule where the current
- * weekday/hour matches, publish the next product not yet published today.
- * Also refreshes Instagram tokens that will expire within 7 days.
+ * Quando reativado explicitamente, publica os Stories agendados.
+ * Enquanto desativado, não consulta o banco nem executa publicações.
  */
 export const Route = createFileRoute("/api/public/hooks/instagram-tick")({
   server: {
@@ -13,6 +15,9 @@ export const Route = createFileRoute("/api/public/hooks/instagram-tick")({
       POST: async ({ request }) => {
         const authFail = requireCronSecret(request);
         if (authFail) return authFail;
+        if (!INSTAGRAM_TICK_ENABLED) {
+          return Response.json({ ok: true, disabled: true, ran: 0, results: [] });
+        }
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const now = new Date();
         // Compare schedules in America/Sao_Paulo (Brasília, UTC-3, no DST).
@@ -77,6 +82,7 @@ export const Route = createFileRoute("/api/public/hooks/instagram-tick")({
           });
 
           try {
+            const { publishForChannel } = await import("@/lib/instagram-publish.server");
             const r = await publishForChannel({
               channelId: s.channel_id, productId: prod.id, kind: "story",
               userId: s.user_id, templateId: s.template_id ?? undefined,
